@@ -27,6 +27,7 @@ func main() {
 	{
 		api.GET("/installments", routes.GetInstallment)
 		api.POST("/installments", routes.AddInstallment)
+		api.DELETE("/installments/:id", routes.RemoveInstallment)
 	}
 
 	r.Run(":8080") // Inicia el servidor en el puerto 8080

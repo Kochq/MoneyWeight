@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -58,6 +59,30 @@ func AddInstallment(c *gin.Context) {
 	})
 }
 
+func RemoveInstallment(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status": "error",
+			"error":  "Invalid ID",
+		})
+	}
+
+	id, err = DeleteInstallment(id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status": "error",
+			"error":  err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"message": fmt.Sprintf("Installment with ID %d deleted", id),
+	})
+}
+
 func CreateInstallment(i Installment) (int, error) {
 	if i.StartDate == "" {
 		i.StartDate = time.Now().Format("2006-01-02 15:04:05")
@@ -107,6 +132,12 @@ func CreateInstallment(i Installment) (int, error) {
 }
 
 func DeleteInstallment(id int) (int, error) {
+    // Delete all transactions related to the installment
+    _, err := DeleteInstallmentsTransactions(id)
+    if err != nil {
+        return 0, err
+    }
+
 	query := "DELETE FROM InstallmentPlans WHERE id = ?"
 	result, err := db.DB.Exec(query, id)
 	if err != nil {
@@ -122,6 +153,29 @@ func DeleteInstallment(id int) (int, error) {
 		return 0, fmt.Errorf("Couldnt remove installment %d", id)
 	}
 	return id, nil
+}
+
+func DeleteInstallmentsTransactions(id int) (int, error) {
+    query := "SELECT * FROM Transactions WHERE installment_plan_id = ?"
+
+    rows, err := db.DB.Query(query, id)
+    if err != nil {
+        return 0, err
+    }
+    defer rows.Close()
+
+    for rows.Next() {
+        var t Transaction
+        if err := scanTransaction(rows, &t); err != nil {
+            return 0, err
+        }
+        _, err := DeleteTransaction(t.ID)
+        if err != nil {
+            return 0, err
+        }
+    }
+
+    return id, nil
 }
 
 func insertInstallment(i Installment) (int, error) {

@@ -41,6 +41,18 @@ const deleteTransaction = () => {
         .catch(err => console.error(err));
 }
 
+const deleteInstallment = () => {
+    fetch(`http://localhost:8080/api/installments/${id.value}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+    })
+        .then(res => res.json())
+        .then(data => console.log(data))
+        .catch(err => console.error(err));
+}
+
 const addInstallment = () => {
     fetch('http://localhost:8080/api/installments', {
         method: 'POST',
