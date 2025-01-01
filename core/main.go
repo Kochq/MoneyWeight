@@ -24,5 +24,10 @@ func main() {
 		api.DELETE("/transactions/:id", routes.RemoveTransaction)
 	}
 
+	{
+		api.GET("/installments", routes.GetInstallment)
+		api.POST("/installments", routes.AddInstallment)
+	}
+
 	r.Run(":8080") // Inicia el servidor en el puerto 8080
 }

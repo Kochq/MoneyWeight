@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoneyWeight api tester</title>
+</head>
+<body>
+        <table>
+            <tr>
+                <th>Transactions</th>
+                <th>Installments</th>
+                <th>Recurrents</th>
+            </tr>
+            <tr>
+                <td><input type="submit" onclick="addTransaction()" value="AddTransaction"></td>
+                <td><input type="submit" onclick="addInstallment()" value="AddInstallment"></td>
+                <td><input type="submit" value="AddRecurrents"></td>
+            </tr>
+            <tr>
+                <td><input type="submit" onclick="deleteTransaction()" value="DeleteTransaction"></td>
+                <td><input type="submit" value="btn"></td>
+                <td><input type="submit" value="btn"></td>
+            </tr>
+            <tr>
+                <td><input type="submit" value="Add"></td>
+                <td><input type="submit" value="btn"></td>
+                <td><input type="submit" value="btn"></td>
+            </tr>
+            <tr>
+                <td><input type="submit" value="btn"></td>
+                <td><input type="submit" value="btn"></td>
+                <td><input type="submit" value="btn"></td>
+            </tr>
+            <tr>
+                <td><input type="submit" value="btn"></td>
+                <td><input type="submit" value="btn"></td>
+                <td><input type="submit" value="btn"></td>
+            </tr>
+        </table>
+
+        ID: <input type="text" id="id" value="0">
+        <input type="button" class="ids" id="add" value=" + ">
+        <input type="button" class="ids" id="sub" value=" - ">
+    </body>
+</html>
+
+<style>
+/* dark mode default */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    background-color: rgb(24, 26, 27);
+    color: #fff;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+tg, th, td {
+    border: 1px solid #fff;
+    padding: 10px;
+    text-align: left;
+}
+
+td { 
+    text-align: center;
+}
+
+.ids {
+    color: #FFF;
+    padding: 5px;
+    margin: 5px;
+    cursor: pointer;
+}
+
+</style>
+<script src="./labjs.js"></script>
