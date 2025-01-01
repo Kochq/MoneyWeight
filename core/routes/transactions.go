@@ -47,7 +47,6 @@ func GetTransactions(c *gin.Context) {
 
 func AddTransaction(c *gin.Context) {
 	var body Transaction
-
 	if err := c.BindJSON(&body); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status": "error",
@@ -56,16 +55,9 @@ func AddTransaction(c *gin.Context) {
 		return
 	}
 
-	if body.Date == "" {
-		body.Date = time.Now().Format("2006-01-02 15:04:05")
-	}
-
-	id, err := insertTransaction(body)
+	id, err := CreateTransaction(body)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"status": "error",
-			"error":  err.Error(),
-		})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -75,39 +67,27 @@ func AddTransaction(c *gin.Context) {
 	})
 }
 
-func DeleteTransaction(c *gin.Context) {
-	id := c.Param("id")
-
-	query := "DELETE FROM Transactions WHERE id = ?"
-	result, err := db.DB.Exec(query, id)
+func RemoveTransaction(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"status": "error",
-			"error":  "Database error",
+			"error":  "Invalid ID",
 		})
-		return
 	}
 
-	rowsAffected, err := result.RowsAffected()
+	id, err = DeleteTransaction(id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"status": "error",
-			"error":  "Could not get affected rows",
-		})
-		return
-	}
-
-	if rowsAffected == 0 {
-		c.JSON(http.StatusNotFound, gin.H{
-			"status": "error",
-			"error":  "Transaction not found",
+			"error":  err.Error(),
 		})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"status":  "success",
-		"message": fmt.Sprintf("Transaction with ID %s deleted", id),
+		"message": fmt.Sprintf("Transaction with ID %d deleted", id),
 	})
 }
 
@@ -121,7 +101,6 @@ func UpdateTransaction(c *gin.Context) {
 	}
 
 	var body Transaction
-
 	if err := c.BindJSON(&body); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status": "error",
@@ -155,7 +134,14 @@ func UpdateTransaction(c *gin.Context) {
 	})
 }
 
-func insertTransaction(t Transaction) (int64, error) {
+func CreateTransaction(t Transaction) (int, error) {
+	if t.Date == "" {
+		t.Date = time.Now().Format("2006-01-02 15:04:05")
+	}
+	return insertTransaction(t)
+}
+
+func insertTransaction(t Transaction) (int, error) {
 	query := `
     INSERT INTO Transactions (
     title, amount, category_id, subcategory_id, 
@@ -165,25 +151,42 @@ func insertTransaction(t Transaction) (int64, error) {
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 
 	result, err := db.DB.Exec(query,
-		t.Title, t.Amount, t.CategoryID, t.SubCategoryID,
-		t.Currency, t.PaymentMethod, t.ExchangeRate,
-		t.Notes, t.Date, t.InstallmentPlanID,
+		t.Title, t.Amount, t.CategoryID, t.SubCategoryID, t.Currency,
+		t.PaymentMethod, t.ExchangeRate, t.Notes, t.Date, t.InstallmentPlanID,
 		t.RecurringPaymentID, t.PaymentNumber)
 
 	if err != nil {
 		return 0, err
 	}
 
-	return result.LastInsertId()
+	id, err := result.LastInsertId()
+	return int(id), err
+}
+
+func DeleteTransaction(id int) (int, error) {
+	query := "DELETE FROM Transactions WHERE id = ?"
+	result, err := db.DB.Exec(query, id)
+	if err != nil {
+		return 0, fmt.Errorf("Error deleting transaction %d: %v", id, err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return 0, fmt.Errorf("Error trying to retrieve rows affected")
+	}
+
+	if rowsAffected == 0 {
+		return 0, fmt.Errorf("Couldnt remove transaction %d", id)
+	}
+
+	return id, nil
 }
 
 func scanTransaction(rows *sql.Rows, t *Transaction) error {
 	return rows.Scan(
-		&t.ID, &t.Title, &t.Amount, &t.CategoryID,
-		&t.SubCategoryID, &t.Currency, &t.PaymentMethod,
-		&t.ExchangeRate, &t.Notes, &t.Date,
-		&t.InstallmentPlanID, &t.RecurringPaymentID,
-		&t.PaymentNumber,
+		&t.ID, &t.Title, &t.Amount, &t.CategoryID, &t.SubCategoryID,
+		&t.Currency, &t.PaymentMethod, &t.ExchangeRate, &t.Notes, &t.Date,
+		&t.InstallmentPlanID, &t.RecurringPaymentID, &t.PaymentNumber,
 	)
 }
 
@@ -206,9 +209,8 @@ func updateTransaction(t Transaction, id int) (int64, error) {
     `
 
 	res, err := db.DB.Exec(query,
-		t.Title, t.Amount, t.CategoryID, t.SubCategoryID,
-		t.Currency, t.PaymentMethod, t.ExchangeRate,
-		t.Notes, t.Date, t.InstallmentPlanID,
+		t.Title, t.Amount, t.CategoryID, t.SubCategoryID, t.Currency,
+		t.PaymentMethod, t.ExchangeRate, t.Notes, t.Date, t.InstallmentPlanID,
 		t.RecurringPaymentID, t.PaymentNumber, id,
 	)
 
