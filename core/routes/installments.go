@@ -100,9 +100,8 @@ func CreateInstallment(i Installment) (int, error) {
 		return 0, fmt.Errorf("error creating installment: %v", err)
 	}
 
-	createdTransactions := []int{}
 	for j := 1; j <= i.TotalInstallments; j++ {
-		transactionId, err := CreateTransaction(Transaction{
+		_, err := CreateTransaction(Transaction{
 			Title:             i.Title,
 			Amount:            i.InstallmentsAmount,
 			CategoryID:        i.CategoryID,
@@ -117,26 +116,20 @@ func CreateInstallment(i Installment) (int, error) {
 		})
 
 		if err != nil {
-			for _, tId := range createdTransactions {
-				DeleteTransaction(tId)
-			}
-
 			DeleteInstallment(id)
 			return 0, fmt.Errorf("Error creating transaction %d: %v", j+1, err)
 		}
-
-		createdTransactions = append(createdTransactions, transactionId)
 	}
 
 	return int(id), nil
 }
 
 func DeleteInstallment(id int) (int, error) {
-    // Delete all transactions related to the installment
-    _, err := DeleteInstallmentsTransactions(id)
-    if err != nil {
-        return 0, err
-    }
+	// Delete all transactions related to the installment
+	_, err := DeleteInstallmentsTransactions(id)
+	if err != nil {
+		return 0, err
+	}
 
 	query := "DELETE FROM InstallmentPlans WHERE id = ?"
 	result, err := db.DB.Exec(query, id)
@@ -156,26 +149,26 @@ func DeleteInstallment(id int) (int, error) {
 }
 
 func DeleteInstallmentsTransactions(id int) (int, error) {
-    query := "SELECT * FROM Transactions WHERE installment_plan_id = ?"
+	query := "SELECT * FROM Transactions WHERE installment_plan_id = ?"
 
-    rows, err := db.DB.Query(query, id)
-    if err != nil {
-        return 0, err
-    }
-    defer rows.Close()
+	rows, err := db.DB.Query(query, id)
+	if err != nil {
+		return 0, err
+	}
+	defer rows.Close()
 
-    for rows.Next() {
-        var t Transaction
-        if err := scanTransaction(rows, &t); err != nil {
-            return 0, err
-        }
-        _, err := DeleteTransaction(t.ID)
-        if err != nil {
-            return 0, err
-        }
-    }
+	for rows.Next() {
+		var t Transaction
+		if err := scanTransaction(rows, &t); err != nil {
+			return 0, err
+		}
+		_, err := DeleteTransaction(t.ID)
+		if err != nil {
+			return 0, err
+		}
+	}
 
-    return id, nil
+	return id, nil
 }
 
 func insertInstallment(i Installment) (int, error) {
