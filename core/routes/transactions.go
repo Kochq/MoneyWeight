@@ -11,37 +11,30 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func (Transaction) TableName() string {
+	return "Transactions"
+}
+
+func (t *Transaction) Scan(rows *sql.Rows) error {
+	return rows.Scan(
+		&t.ID, &t.Title, &t.Amount, &t.CategoryID, &t.SubCategoryID,
+		&t.Currency, &t.PaymentMethod, &t.ExchangeRate, &t.Notes, &t.Date,
+		&t.InstallmentPlanID, &t.RecurringPaymentID, &t.PaymentNumber,
+	)
+}
+
+func (t Transaction) GetQuery() string {
+	return fmt.Sprintf(`
+        SELECT * 
+        FROM %s 
+        ORDER BY date DESC 
+        LIMIT ? OFFSET ?`, t.TableName())
+
+}
+
 func GetTransactions(c *gin.Context) {
-	// Agregar paginación
-	limit := c.DefaultQuery("limit", "10")
-	offset := c.DefaultQuery("offset", "0")
-
-	query := `
-    SELECT * 
-    FROM Transactions 
-    ORDER BY date DESC 
-    LIMIT ? OFFSET ?`
-
-	rows, err := db.DB.Query(query, limit, offset)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	defer rows.Close()
-
-	transactions := []Transaction{}
-	for rows.Next() {
-		var t Transaction
-		if err := scanTransaction(rows, &t); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Scan error"})
-			return
-		}
-		transactions = append(transactions, t)
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"status": "success",
-		"data":   transactions,
+	GetEntities(c, func() *Transaction {
+		return &Transaction{}
 	})
 }
 

@@ -11,29 +11,29 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func (Installment) TableName() string {
+	return "InstallmentPlans"
+}
+
+func (i *Installment) Scan(rows *sql.Rows) error {
+	return rows.Scan(
+		&i.ID, &i.Title, &i.TotalAmount, &i.TotalInstallments,
+		&i.InstallmentsAmount, &i.StartDate, &i.PayDate, &i.Status,
+		&i.CategoryID, &i.SubCategoryID,
+	)
+}
+
+func (i Installment) GetQuery() string {
+	return fmt.Sprintf(`
+        SELECT * 
+        FROM %s
+        ORDER BY ID DESC 
+        LIMIT ? OFFSET ?`, i.TableName())
+}
+
 func GetInstallment(c *gin.Context) {
-	query := `SELECT * FROM InstallmentPlans`
-
-	rows, err := db.DB.Query(query)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	defer rows.Close()
-
-	installments := []Installment{}
-	for rows.Next() {
-		var i Installment
-		if err := scanInstallment(rows, &i); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			return
-		}
-		installments = append(installments, i)
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"status": "success",
-		"data":   installments,
+	GetEntities(c, func() *Installment {
+		return &Installment{}
 	})
 }
 
