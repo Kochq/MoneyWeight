@@ -27,6 +27,7 @@ func main() {
 	{
 		api.GET("/installments", routes.GetInstallment)
 		api.POST("/installments", routes.AddInstallment)
+		api.PUT("/installments/:id", routes.UpdateInstallment)
 		api.DELETE("/installments/:id", routes.RemoveInstallment)
 	}
 
