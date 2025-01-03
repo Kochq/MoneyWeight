@@ -73,3 +73,22 @@ const addInstallment = () => {
         .then(data => console.log(data))
         .catch(err => console.error(err));
 }
+
+const addRecurringPayment = () => {
+    fetch('http://localhost:8080/api/recurring', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            title: "recurring1",
+            amount: 10000,
+            is_active: true,
+            category_id: 1,
+            subcategory_id: 1,
+        })
+    })
+        .then(res => res.json())
+        .then(data => console.log(data))
+        .catch(err => console.error(err));
+}

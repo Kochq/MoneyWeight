@@ -28,3 +28,15 @@ type Installment struct {
 	CategoryID         int     `json:"category_id"`
 	SubCategoryID      int     `json:"subcategory_id"`
 }
+
+type RecurringPayment struct {
+	ID            int     `json:"id"`
+	Title         string  `json:"title"`
+	Amount        float64 `json:"amount"`
+	CategoryID    int     `json:"category_id"`
+	SubCategoryID int     `json:"subcategory_id"`
+	IsActive      bool    `json:"is_active"`
+	StartDate     string  `json:"start_date"`
+	EndDate       string  `json:"end_date"`
+	Frequency     string  `json:"frequency"`
+}
