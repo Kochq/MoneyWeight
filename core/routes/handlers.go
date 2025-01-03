@@ -11,7 +11,10 @@ import (
 type Entity interface {
 	TableName() string
 	Scan(rows *sql.Rows) error
-    GetQuery() string
+	GetQuery() string
+
+	Create() (int, error)
+	insert() (int, error)
 }
 
 // Generic function | T is an Entity | newT is a contructor for T
@@ -42,5 +45,27 @@ func GetEntities[T Entity](c *gin.Context, newT func() T) {
 	c.JSON(http.StatusOK, gin.H{
 		"status": "success",
 		"data":   entities,
+	})
+}
+
+func AddEntity[T Entity](c *gin.Context, newT func() T) {
+	var body = newT()
+	if err := c.BindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status": "error",
+			"error":  "Invalid request body",
+		})
+		return
+	}
+
+	id, err := body.Create()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{
+		"status": "success",
+		"id":     id,
 	})
 }

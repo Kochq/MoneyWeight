@@ -32,6 +32,35 @@ func (t Transaction) GetQuery() string {
 
 }
 
+func (t *Transaction) Create() (int, error) {
+	if t.Date == "" {
+		t.Date = time.Now().Format("2006-01-02 15:04:05")
+	}
+	return t.insert()
+}
+
+func (t *Transaction) insert() (int, error) {
+	query := `
+    INSERT INTO Transactions (
+    title, amount, category_id, subcategory_id,
+    currency, payment_method, exchange_rate,
+    notes, date, installment_plan_id,
+    recurring_payment_id, payment_number
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+
+	result, err := db.DB.Exec(query,
+		t.Title, t.Amount, t.CategoryID, t.SubCategoryID, t.Currency,
+		t.PaymentMethod, t.ExchangeRate, t.Notes, t.Date, t.InstallmentPlanID,
+		t.RecurringPaymentID, t.PaymentNumber)
+
+	if err != nil {
+		return 0, err
+	}
+
+	id, err := result.LastInsertId()
+	return int(id), err
+}
+
 func GetTransactions(c *gin.Context) {
 	GetEntities(c, func() *Transaction {
 		return &Transaction{}
@@ -39,24 +68,8 @@ func GetTransactions(c *gin.Context) {
 }
 
 func AddTransaction(c *gin.Context) {
-	var body Transaction
-	if err := c.BindJSON(&body); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"status": "error",
-			"error":  "Invalid request body",
-		})
-		return
-	}
-
-	id, err := CreateTransaction(body)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusCreated, gin.H{
-		"status": "success",
-		"id":     id,
+	AddEntity(c, func() *Transaction {
+		return &Transaction{}
 	})
 }
 
@@ -127,35 +140,6 @@ func UpdateTransaction(c *gin.Context) {
 	})
 }
 
-func CreateTransaction(t Transaction) (int, error) {
-	if t.Date == "" {
-		t.Date = time.Now().Format("2006-01-02 15:04:05")
-	}
-	return insertTransaction(t)
-}
-
-func insertTransaction(t Transaction) (int, error) {
-	query := `
-    INSERT INTO Transactions (
-    title, amount, category_id, subcategory_id, 
-    currency, payment_method, exchange_rate, 
-    notes, date, installment_plan_id, 
-    recurring_payment_id, payment_number
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-
-	result, err := db.DB.Exec(query,
-		t.Title, t.Amount, t.CategoryID, t.SubCategoryID, t.Currency,
-		t.PaymentMethod, t.ExchangeRate, t.Notes, t.Date, t.InstallmentPlanID,
-		t.RecurringPaymentID, t.PaymentNumber)
-
-	if err != nil {
-		return 0, err
-	}
-
-	id, err := result.LastInsertId()
-	return int(id), err
-}
-
 func DeleteTransaction(id int) (int, error) {
 	query := "DELETE FROM Transactions WHERE id = ?"
 	result, err := db.DB.Exec(query, id)
@@ -173,14 +157,6 @@ func DeleteTransaction(id int) (int, error) {
 	}
 
 	return id, nil
-}
-
-func scanTransaction(rows *sql.Rows, t *Transaction) error {
-	return rows.Scan(
-		&t.ID, &t.Title, &t.Amount, &t.CategoryID, &t.SubCategoryID,
-		&t.Currency, &t.PaymentMethod, &t.ExchangeRate, &t.Notes, &t.Date,
-		&t.InstallmentPlanID, &t.RecurringPaymentID, &t.PaymentNumber,
-	)
 }
 
 func updateTransaction(t Transaction, id int) (int64, error) {

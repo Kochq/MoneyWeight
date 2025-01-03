@@ -38,24 +38,8 @@ func GetInstallment(c *gin.Context) {
 }
 
 func AddInstallment(c *gin.Context) {
-	var body Installment
-	if err := c.BindJSON(&body); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"status": "error",
-			"error":  "Invalid request body",
-		})
-		return
-	}
-
-	id, err := CreateInstallment(body)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusCreated, gin.H{
-		"status": "success",
-		"id":     id,
+	AddEntity(c, func() *Installment {
+		return &Installment{}
 	})
 }
 
@@ -83,7 +67,7 @@ func RemoveInstallment(c *gin.Context) {
 	})
 }
 
-func CreateInstallment(i Installment) (int, error) {
+func (i *Installment) Create() (int, error) {
 	if i.StartDate == "" {
 		i.StartDate = time.Now().Format("2006-01-02 15:04:05")
 	}
@@ -95,13 +79,13 @@ func CreateInstallment(i Installment) (int, error) {
 		i.InstallmentsAmount = i.TotalAmount / float64(i.TotalInstallments)
 	}
 
-	id, err := insertInstallment(i)
+	id, err := i.insert()
 	if err != nil {
 		return 0, fmt.Errorf("error creating installment: %v", err)
 	}
 
 	for j := 1; j <= i.TotalInstallments; j++ {
-		_, err := CreateTransaction(Transaction{
+		instTransaction := Transaction{
 			Title:             i.Title,
 			Amount:            i.InstallmentsAmount,
 			CategoryID:        i.CategoryID,
@@ -113,7 +97,8 @@ func CreateInstallment(i Installment) (int, error) {
 			Date:              i.PayDate,
 			InstallmentPlanID: &id,
 			PaymentNumber:     &j,
-		})
+		}
+		_, err := instTransaction.Create()
 
 		if err != nil {
 			DeleteInstallment(id)
@@ -228,7 +213,7 @@ func DeleteInstallmentsTransactions(id int) (int, error) {
 
 	for rows.Next() {
 		var t Transaction
-		if err := scanTransaction(rows, &t); err != nil {
+		if err := t.Scan(rows); err != nil {
 			return 0, err
 		}
 		_, err := DeleteTransaction(t.ID)
@@ -240,7 +225,7 @@ func DeleteInstallmentsTransactions(id int) (int, error) {
 	return id, nil
 }
 
-func insertInstallment(i Installment) (int, error) {
+func (i *Installment) insert() (int, error) {
 	query := `
     INSERT INTO InstallmentPlans (
     title, total_amount, total_installments, installment_amount, 
