@@ -53,6 +53,18 @@ const deleteInstallment = () => {
         .catch(err => console.error(err));
 }
 
+const deleteRecurringPayment = () => {
+    fetch(`http://localhost:8080/api/recurring/${id.value}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+    })
+        .then(res => res.json())
+        .then(data => console.log(data))
+        .catch(err => console.error(err));
+}
+
 const addInstallment = () => {
     fetch('http://localhost:8080/api/installments', {
         method: 'POST',

@@ -15,6 +15,7 @@ type Entity interface {
 	Scan(rows *sql.Rows) error
 	GetQuery() string
 
+    DeleteEntity(id int) (int, error)
 	SetEntity(id int) (int, error)
 	Create() (int, error)
 	insert() (int, error)
@@ -113,5 +114,31 @@ func UpdateEntity[T Entity](c *gin.Context, newT func() T) {
 	c.JSON(http.StatusOK, gin.H{
 		"status":  "success",
 		"message": fmt.Sprintf(body.TableName()+" with ID %d updated", id),
+	})
+}
+
+func RemoveEntity[T Entity](c *gin.Context, newT func() T) {
+	entity := newT()
+
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status": "error",
+			"error":  "Invalid ID",
+		})
+	}
+
+	id, err = entity.DeleteEntity(id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status": "error",
+			"error":  err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"message": fmt.Sprintf("Transaction with ID %d deleted", id),
 	})
 }

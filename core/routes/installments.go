@@ -4,8 +4,6 @@ import (
 	"api/db"
 	"database/sql"
 	"fmt"
-	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -50,26 +48,8 @@ func UpdateInstallment(c *gin.Context) {
 }
 
 func RemoveInstallment(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"status": "error",
-			"error":  "Invalid ID",
-		})
-	}
-
-	id, err = DeleteInstallment(id)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"status": "error",
-			"error":  err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"status":  "success",
-		"message": fmt.Sprintf("Installment with ID %d deleted", id),
+	RemoveEntity(c, func() *Installment {
+		return &Installment{}
 	})
 }
 
@@ -107,7 +87,7 @@ func (i *Installment) Create() (int, error) {
 		_, err := instTransaction.Create()
 
 		if err != nil {
-			DeleteInstallment(id)
+			i.DeleteEntity(id)
 			return 0, fmt.Errorf("Error creating transaction %d: %v", j+1, err)
 		}
 	}
@@ -115,7 +95,7 @@ func (i *Installment) Create() (int, error) {
 	return int(id), nil
 }
 
-func DeleteInstallment(id int) (int, error) {
+func (i *Installment) DeleteEntity(id int) (int, error) {
 	// Delete all transactions related to the installment
 	_, err := DeleteInstallmentsTransactions(id)
 	if err != nil {
@@ -180,7 +160,7 @@ func DeleteInstallmentsTransactions(id int) (int, error) {
 		if err := t.Scan(rows); err != nil {
 			return 0, err
 		}
-		_, err := DeleteTransaction(t.ID)
+		_, err := t.DeleteEntity(id)
 		if err != nil {
 			return 0, err
 		}

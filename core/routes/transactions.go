@@ -4,8 +4,6 @@ import (
 	"api/db"
 	"database/sql"
 	"fmt"
-	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -80,30 +78,13 @@ func UpdateTransaction(c *gin.Context) {
 }
 
 func RemoveTransaction(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"status": "error",
-			"error":  "Invalid ID",
-		})
-	}
-
-	id, err = DeleteTransaction(id)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"status": "error",
-			"error":  err.Error(),
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"status":  "success",
-		"message": fmt.Sprintf("Transaction with ID %d deleted", id),
+	RemoveEntity(c, func() *Transaction {
+		return &Transaction{}
 	})
 }
 
-func DeleteTransaction(id int) (int, error) {
+
+func (t *Transaction) DeleteEntity(id int) (int, error) {
 	query := "DELETE FROM Transactions WHERE id = ?"
 	result, err := db.DB.Exec(query, id)
 	if err != nil {

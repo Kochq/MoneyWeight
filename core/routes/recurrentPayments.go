@@ -27,6 +27,12 @@ func UpdateRecurringPayment(c *gin.Context) {
 	})
 }
 
+func RemoveRecurringPayment(c *gin.Context) {
+	RemoveEntity(c, func() *RecurringPayment {
+		return &RecurringPayment{}
+	})
+}
+
 func (RecurringPayment) TableName() string {
 	return "RecurringPayments"
 }
@@ -83,7 +89,7 @@ func (rp *RecurringPayment) insert() (int, error) {
 
 func (rp *RecurringPayment) SetEntity(id int) (int, error) {
 	query := `
-    UPDATE RecurringPayment 
+    UPDATE RecurringPayments 
     SET title = ?, 
     amount = ?,
     category_id = ?,
@@ -96,7 +102,7 @@ func (rp *RecurringPayment) SetEntity(id int) (int, error) {
 
 	res, err := db.DB.Exec(query,
 		&rp.Title, &rp.Amount, &rp.CategoryID, &rp.SubCategoryID, &rp.IsActive,
-		&rp.StartDate, &rp.EndDate, &rp.Frequency,
+		&rp.StartDate, &rp.EndDate, &rp.Frequency, id,
 	)
 	if err != nil {
 		return 0, err
@@ -105,4 +111,23 @@ func (rp *RecurringPayment) SetEntity(id int) (int, error) {
 	idR, err := res.RowsAffected()
 
 	return int(idR), err
+}
+
+func (rp *RecurringPayment) DeleteEntity(id int) (int, error) {
+	query := "DELETE FROM RecurringPayments WHERE id = ?"
+	result, err := db.DB.Exec(query, rp.ID)
+	if err != nil {
+		return 0, fmt.Errorf("Error deleting transaction %d: %v", id, err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return 0, fmt.Errorf("Error trying to retrieve rows affected")
+	}
+
+	if rowsAffected == 0 {
+		return 0, fmt.Errorf("Couldnt remove transaction %d", id)
+	}
+
+	return id, nil
 }

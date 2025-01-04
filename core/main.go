@@ -34,6 +34,8 @@ func main() {
 	{
 		api.GET("/recurring", routes.GetRecurringPayments)
 		api.POST("/recurring", routes.AddRecurringPayment)
+        api.PUT("/recurring/:id", routes.UpdateRecurringPayment)
+		api.DELETE("/recurring/:id", routes.RemoveRecurringPayment)
 	}
 
 	r.Run(":8080") // Inicia el servidor en el puerto 8080
