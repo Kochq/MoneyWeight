@@ -15,9 +15,9 @@ type Entity interface {
 	GetSelectQuery() string
 	Scan(rows *sql.Rows) error
 
-    Create() (int, error)
-    insert() (int, error)
-    SetEntity(id int) (int, error)
+	Create() (int, error)
+	Insert() (int, error)
+	SetEntity(id int) (int, error)
 	DeleteEntity(id int) (int, error)
 }
 
@@ -139,6 +139,6 @@ func RemoveEntity[T Entity](c *gin.Context, newT func() T) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"status":  "success",
-		"message": fmt.Sprintf(entity.TableName() + " with ID %d deleted", id),
+		"message": fmt.Sprintf(entity.TableName()+" with ID %d deleted", id),
 	})
 }
