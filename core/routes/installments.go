@@ -43,6 +43,12 @@ func AddInstallment(c *gin.Context) {
 	})
 }
 
+func UpdateInstallment(c *gin.Context) {
+	UpdateEntity(c, func() *Installment {
+		return &Installment{}
+	})
+}
+
 func RemoveInstallment(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -133,50 +139,7 @@ func DeleteInstallment(id int) (int, error) {
 	return id, nil
 }
 
-func UpdateInstallment(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"status": "error",
-			"error":  "Invalid ID",
-		})
-	}
-
-	var body Installment
-	if err := c.BindJSON(&body); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"status": "error",
-			"error":  "Invalid request body",
-		})
-		return
-	}
-
-	rowsAffected, err := updateInstallment(body, id)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"status": "error",
-			"error":  err.Error(),
-		})
-		return
-	}
-
-	// It's working perfectly fine...
-	// it wont affect any rows if it can't change anything
-	if rowsAffected == 0 {
-		c.JSON(http.StatusNotFound, gin.H{
-			"status": "error",
-			"error":  "Transaction not found",
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"status":  "success",
-		"message": fmt.Sprintf("Installment with ID %d updated", id),
-	})
-}
-
-func updateInstallment(i Installment, id int) (int64, error) {
+func (i Installment) SetEntity(id int) (int, error) {
 	query := `
     UPDATE InstallmentPlans 
     SET title = ?,
@@ -190,16 +153,17 @@ func updateInstallment(i Installment, id int) (int64, error) {
     subcategory_id = ? 
     WHERE id = ?`
 
-	result, err := db.DB.Exec(query,
+	res, err := db.DB.Exec(query,
 		i.Title, i.TotalAmount, i.TotalInstallments, i.InstallmentsAmount,
 		i.StartDate, i.PayDate, i.Status, i.CategoryID, i.SubCategoryID, id,
 	)
-
 	if err != nil {
 		return 0, err
 	}
 
-	return result.RowsAffected()
+	idR, err := res.RowsAffected()
+
+	return int(idR), err
 }
 
 func DeleteInstallmentsTransactions(id int) (int, error) {

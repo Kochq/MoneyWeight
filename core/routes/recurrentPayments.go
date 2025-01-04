@@ -21,6 +21,12 @@ func AddRecurringPayment(c *gin.Context) {
 	})
 }
 
+func UpdateRecurringPayment(c *gin.Context) {
+	UpdateEntity(c, func() *RecurringPayment {
+		return &RecurringPayment{}
+	})
+}
+
 func (RecurringPayment) TableName() string {
 	return "RecurringPayments"
 }
@@ -73,4 +79,30 @@ func (rp *RecurringPayment) insert() (int, error) {
 
 	id, err := res.LastInsertId()
 	return int(id), err
+}
+
+func (rp *RecurringPayment) SetEntity(id int) (int, error) {
+	query := `
+    UPDATE RecurringPayment 
+    SET title = ?, 
+    amount = ?,
+    category_id = ?,
+    subcategory_id = ?,
+    is_active = ?,
+    start_date = ?,
+    end_date = ?,
+    frequency = ?
+    WHERE id = ?`
+
+	res, err := db.DB.Exec(query,
+		&rp.Title, &rp.Amount, &rp.CategoryID, &rp.SubCategoryID, &rp.IsActive,
+		&rp.StartDate, &rp.EndDate, &rp.Frequency,
+	)
+	if err != nil {
+		return 0, err
+	}
+
+	idR, err := res.RowsAffected()
+
+	return int(idR), err
 }

@@ -3,7 +3,9 @@ package routes
 import (
 	"api/db"
 	"database/sql"
+	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -13,6 +15,7 @@ type Entity interface {
 	Scan(rows *sql.Rows) error
 	GetQuery() string
 
+	SetEntity(id int) (int, error)
 	Create() (int, error)
 	insert() (int, error)
 }
@@ -67,5 +70,48 @@ func AddEntity[T Entity](c *gin.Context, newT func() T) {
 	c.JSON(http.StatusCreated, gin.H{
 		"status": "success",
 		"id":     id,
+	})
+}
+
+func UpdateEntity[T Entity](c *gin.Context, newT func() T) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status": "error",
+			"error":  "Invalid ID",
+		})
+	}
+
+	var body = newT()
+	if err := c.BindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status": "error",
+			"error":  "Invalid request body",
+		})
+		return
+	}
+
+	rowsAffected, err := body.SetEntity(id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status": "error",
+			"error":  err.Error(),
+		})
+		return
+	}
+
+	// It's working perfectly fine...
+	// it wont affect any rows if it can't change anything
+	if rowsAffected == 0 {
+		c.JSON(http.StatusNotFound, gin.H{
+			"status": "error",
+			"error":  body.TableName() + " not found",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"message": fmt.Sprintf(body.TableName()+" with ID %d updated", id),
 	})
 }
