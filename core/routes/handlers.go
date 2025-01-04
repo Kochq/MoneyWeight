@@ -12,13 +12,13 @@ import (
 
 type Entity interface {
 	TableName() string
+	GetSelectQuery() string
 	Scan(rows *sql.Rows) error
-	GetQuery() string
 
-    DeleteEntity(id int) (int, error)
-	SetEntity(id int) (int, error)
-	Create() (int, error)
-	insert() (int, error)
+    Create() (int, error)
+    insert() (int, error)
+    SetEntity(id int) (int, error)
+	DeleteEntity(id int) (int, error)
 }
 
 // Generic function | T is an Entity | newT is a contructor for T
@@ -29,7 +29,7 @@ func GetEntities[T Entity](c *gin.Context, newT func() T) {
 	// This is just to get the table name
 	entity := newT()
 
-	rows, err := db.DB.Query(entity.GetQuery(), limit, offset)
+	rows, err := db.DB.Query(entity.GetSelectQuery(), limit, offset)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -139,6 +139,6 @@ func RemoveEntity[T Entity](c *gin.Context, newT func() T) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"status":  "success",
-		"message": fmt.Sprintf("Transaction with ID %d deleted", id),
+		"message": fmt.Sprintf(entity.TableName() + " with ID %d deleted", id),
 	})
 }

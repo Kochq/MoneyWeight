@@ -9,26 +9,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (Installment) TableName() string {
-	return "InstallmentPlans"
-}
-
-func (i *Installment) Scan(rows *sql.Rows) error {
-	return rows.Scan(
-		&i.ID, &i.Title, &i.TotalAmount, &i.TotalInstallments,
-		&i.InstallmentsAmount, &i.StartDate, &i.PayDate, &i.Status,
-		&i.CategoryID, &i.SubCategoryID,
-	)
-}
-
-func (i Installment) GetQuery() string {
-	return fmt.Sprintf(`
-        SELECT * 
-        FROM %s
-        ORDER BY ID DESC 
-        LIMIT ? OFFSET ?`, i.TableName())
-}
-
 func GetInstallment(c *gin.Context) {
 	GetEntities(c, func() *Installment {
 		return &Installment{}
@@ -71,7 +51,7 @@ func (i *Installment) Create() (int, error) {
 	}
 
 	for j := 1; j <= i.TotalInstallments; j++ {
-		instTransaction := Transaction{
+		t := Transaction{
 			Title:             i.Title,
 			Amount:            i.InstallmentsAmount,
 			CategoryID:        i.CategoryID,
@@ -84,7 +64,7 @@ func (i *Installment) Create() (int, error) {
 			InstallmentPlanID: &id,
 			PaymentNumber:     &j,
 		}
-		_, err := instTransaction.Create()
+		_, err := t.Create()
 
 		if err != nil {
 			i.DeleteEntity(id)
@@ -95,28 +75,24 @@ func (i *Installment) Create() (int, error) {
 	return int(id), nil
 }
 
-func (i *Installment) DeleteEntity(id int) (int, error) {
-	// Delete all transactions related to the installment
-	_, err := DeleteInstallmentsTransactions(id)
+func (i *Installment) insert() (int, error) {
+	query := `
+    INSERT INTO InstallmentPlans (
+    title, total_amount, total_installments, installment_amount, 
+    start_date, pay_date, status, category_id, subcategory_id
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+
+	result, err := db.DB.Exec(query,
+		i.Title, i.TotalAmount, i.TotalInstallments, i.InstallmentsAmount,
+		i.StartDate, i.PayDate, i.Status, i.CategoryID, i.SubCategoryID,
+	)
+
 	if err != nil {
 		return 0, err
 	}
 
-	query := "DELETE FROM InstallmentPlans WHERE id = ?"
-	result, err := db.DB.Exec(query, id)
-	if err != nil {
-		return 0, fmt.Errorf("Error deleting installment %d: %v", id, err)
-	}
-
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		return 0, fmt.Errorf("Error trying to retrieve rows affected")
-	}
-
-	if rowsAffected == 0 {
-		return 0, fmt.Errorf("Couldnt remove installment %d", id)
-	}
-	return id, nil
+	id, err := result.LastInsertId()
+	return int(id), err
 }
 
 func (i Installment) SetEntity(id int) (int, error) {
@@ -146,6 +122,30 @@ func (i Installment) SetEntity(id int) (int, error) {
 	return int(idR), err
 }
 
+func (i *Installment) DeleteEntity(id int) (int, error) {
+	// Delete all transactions related to the installment
+	_, err := DeleteInstallmentsTransactions(id)
+	if err != nil {
+		return 0, err
+	}
+
+	query := "DELETE FROM InstallmentPlans WHERE id = ?"
+	result, err := db.DB.Exec(query, id)
+	if err != nil {
+		return 0, fmt.Errorf("Error deleting installment %d: %v", id, err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return 0, fmt.Errorf("Error trying to retrieve rows affected")
+	}
+
+	if rowsAffected == 0 {
+		return 0, fmt.Errorf("Couldnt remove installment %d", id)
+	}
+	return id, nil
+}
+
 func DeleteInstallmentsTransactions(id int) (int, error) {
 	query := "SELECT * FROM Transactions WHERE installment_plan_id = ?"
 
@@ -169,27 +169,19 @@ func DeleteInstallmentsTransactions(id int) (int, error) {
 	return id, nil
 }
 
-func (i *Installment) insert() (int, error) {
-	query := `
-    INSERT INTO InstallmentPlans (
-    title, total_amount, total_installments, installment_amount, 
-    start_date, pay_date, status, category_id, subcategory_id
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
-
-	result, err := db.DB.Exec(query,
-		i.Title, i.TotalAmount, i.TotalInstallments, i.InstallmentsAmount,
-		i.StartDate, i.PayDate, i.Status, i.CategoryID, i.SubCategoryID,
-	)
-
-	if err != nil {
-		return 0, err
-	}
-
-	id, err := result.LastInsertId()
-	return int(id), err
+func (Installment) TableName() string {
+	return "InstallmentPlans"
 }
 
-func scanInstallment(rows *sql.Rows, i *Installment) error {
+func (i Installment) GetSelectQuery() string {
+	return fmt.Sprintf(`
+        SELECT * 
+        FROM %s
+        ORDER BY ID DESC 
+        LIMIT ? OFFSET ?`, i.TableName())
+}
+
+func (i *Installment) Scan(rows *sql.Rows) error {
 	return rows.Scan(
 		&i.ID, &i.Title, &i.TotalAmount, &i.TotalInstallments,
 		&i.InstallmentsAmount, &i.StartDate, &i.PayDate, &i.Status,

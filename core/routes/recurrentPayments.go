@@ -33,25 +33,6 @@ func RemoveRecurringPayment(c *gin.Context) {
 	})
 }
 
-func (RecurringPayment) TableName() string {
-	return "RecurringPayments"
-}
-
-func (rp *RecurringPayment) Scan(rows *sql.Rows) error {
-	return rows.Scan(
-		&rp.ID, &rp.Title, &rp.Amount, &rp.Frequency, &rp.StartDate, &rp.EndDate,
-		&rp.IsActive, &rp.CategoryID, &rp.SubCategoryID,
-	)
-}
-
-func (rp RecurringPayment) GetQuery() string {
-	return fmt.Sprintf(`
-    SELECT * 
-    FROM %s
-    ORDER BY ID DESC 
-    LIMIT ? OFFSET ?`, rp.TableName())
-}
-
 func (rp *RecurringPayment) Create() (int, error) {
 	if rp.StartDate == "" {
 		rp.StartDate = time.Now().Format("2006-01-02 15:04:05")
@@ -130,4 +111,23 @@ func (rp *RecurringPayment) DeleteEntity(id int) (int, error) {
 	}
 
 	return id, nil
+}
+
+func (RecurringPayment) TableName() string {
+	return "RecurringPayments"
+}
+
+func (rp RecurringPayment) GetSelectQuery() string {
+	return fmt.Sprintf(`
+    SELECT * 
+    FROM %s
+    ORDER BY ID DESC 
+    LIMIT ? OFFSET ?`, rp.TableName())
+}
+
+func (rp *RecurringPayment) Scan(rows *sql.Rows) error {
+	return rows.Scan(
+		&rp.ID, &rp.Title, &rp.Amount, &rp.Frequency, &rp.StartDate, &rp.EndDate,
+		&rp.IsActive, &rp.CategoryID, &rp.SubCategoryID,
+	)
 }
