@@ -38,6 +38,13 @@ func (i *Installment) Create() (int, error) {
 	}
 
 	for j := 1; j <= i.TotalInstallments; j++ {
+        fDate, err := time.Parse("2006-01-02 15:04:05", i.PayDate)
+		if err != nil {
+			return 0, fmt.Errorf("Error parsing start date: %v", err)
+		}
+		addedDate := fDate.AddDate(0, j, 0)
+		fAddedDate := addedDate.Format("2006-01-02 15:04:05")
+
 		t := Transaction{
 			Title:             i.Title,
 			Amount:            i.InstallmentsAmount,
@@ -47,11 +54,11 @@ func (i *Installment) Create() (int, error) {
 			PaymentMethod:     "Cash",
 			ExchangeRate:      1,
 			Notes:             "",
-			Date:              i.PayDate,
+			Date:              fAddedDate,
 			InstallmentPlanID: &id,
 			PaymentNumber:     &j,
 		}
-		_, err := t.Create()
+		_, err = t.Create()
 
 		if err != nil {
 			i.DeleteEntity(id)

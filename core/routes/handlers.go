@@ -23,7 +23,7 @@ type Entity interface {
 
 // Generic function | T is an Entity | newT is a contructor for T
 func GetEntities[T Entity](c *gin.Context, newT func() T) {
-	limit := c.DefaultQuery("limit", "10")
+	limit := c.DefaultQuery("limit", "100")
 	offset := c.DefaultQuery("offset", "0")
 
 	// This is just to get the table name
