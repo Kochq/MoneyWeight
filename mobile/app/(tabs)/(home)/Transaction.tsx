@@ -25,7 +25,7 @@ export default function TransactionCard({ t }: { t: Transaction }) {
                 <Text style={{ color: "#fff" }}>{t.title}</Text>
             </View>
             <View style={styles.desc}>
-                <Text style={{ color: "#0F0" }}>{t.amount}</Text>
+                <Text style={{ color: "#0F0" }}>{`$ ${t.amount}`}</Text>
                 <Text style={{ color: "#fff" }}>{day}</Text>
             </View>
         </View>

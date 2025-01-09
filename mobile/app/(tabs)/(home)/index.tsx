@@ -22,12 +22,7 @@ export default function HomeScreen() {
     const [transactions, setTransactions] = useState<Transaction[]>([]);
 
     const getTransactions = async () => {
-        let url = "";
-        if (Platform.OS === "web") {
-            url = "http://localhost:8080/api/transactions";
-        } else {
-            url = "http://10.0.2.2:8080/api/transactions";
-        }
+        let url = "http://192.168.100.195:8080/api/transactions";
 
         const response = await fetch(url);
         const data = await response.json();
