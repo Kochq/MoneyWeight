@@ -8,16 +8,19 @@ import (
 )
 
 type Installment struct {
-	ID                 int     `json:"id"`
-	Title              string  `json:"title"`
-	TotalAmount        float64 `json:"total_amount"`
-	TotalInstallments  int     `json:"total_installments"`
-	InstallmentsAmount float64 `json:"installment_amount"`
-	StartDate          string  `json:"start_date"` // Podríamos usar time.Time
-	PayDate            string  `json:"pay_date"`   // Podríamos usar time.Time
-	Status             string  `json:"status"`
-	CategoryID         int     `json:"category_id"`
-	SubCategoryID      int     `json:"subcategory_id"`
+	ID                    int     `json:"id"`
+	Title                 string  `json:"title"`
+	TotalAmount           float64 `json:"total_amount"`
+	TotalInstallments     int     `json:"total_installments"`
+	InstallmentsAmount    float64 `json:"installment_amount"`
+	RemainingInstallments float64 `json:"remaining_installments"`
+	StartDate             string  `json:"start_date"`        // Podríamos usar time.Time
+	PayDate               string  `json:"pay_date"`          // Podríamos usar time.Time
+	NextPaymentDate       string  `json:"next_payment_date"` // Podríamos usar time.Time
+	Status                string  `json:"status"`
+	CategoryID            int     `json:"category_id"`
+	SubCategoryID         int     `json:"subcategory_id"`
+	FromAccountID         int     `json:"from_account_id"`
 }
 
 func (i *Installment) Create() (int, error) {
@@ -26,6 +29,9 @@ func (i *Installment) Create() (int, error) {
 	}
 	if i.PayDate == "" {
 		i.PayDate = time.Now().Format("2006-01-02 15:04:05")
+	}
+	if i.NextPaymentDate == "" {
+		i.NextPaymentDate = i.PayDate
 	}
 
 	if i.InstallmentsAmount == 0 {
@@ -38,7 +44,7 @@ func (i *Installment) Create() (int, error) {
 	}
 
 	for j := 1; j <= i.TotalInstallments; j++ {
-        fDate, err := time.Parse("2006-01-02 15:04:05", i.PayDate)
+		fDate, err := time.Parse("2006-01-02 15:04:05", i.PayDate)
 		if err != nil {
 			return 0, fmt.Errorf("Error parsing start date: %v", err)
 		}
@@ -50,6 +56,7 @@ func (i *Installment) Create() (int, error) {
 			Amount:            i.InstallmentsAmount,
 			CategoryID:        i.CategoryID,
 			SubCategoryID:     i.SubCategoryID,
+			FromAccountID:     i.FromAccountID,
 			Currency:          "USD",
 			PaymentMethod:     "Cash",
 			ExchangeRate:      1,
@@ -72,13 +79,15 @@ func (i *Installment) Create() (int, error) {
 func (i *Installment) Insert() (int, error) {
 	query := `
     INSERT INTO InstallmentPlans (
-    title, total_amount, total_installments, installment_amount, 
-    start_date, pay_date, status, category_id, subcategory_id
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    title, total_amount, total_installments, installment_amount,
+    start_date, pay_date, status, category_id, subcategory_id, from_account_id,
+    next_payment_date, remaining_installments
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 
 	result, err := db.DB.Exec(query,
 		i.Title, i.TotalAmount, i.TotalInstallments, i.InstallmentsAmount,
 		i.StartDate, i.PayDate, i.Status, i.CategoryID, i.SubCategoryID,
+		i.FromAccountID, i.NextPaymentDate, i.RemainingInstallments,
 	)
 
 	if err != nil {
@@ -91,21 +100,25 @@ func (i *Installment) Insert() (int, error) {
 
 func (i Installment) SetEntity(id int) (int, error) {
 	query := `
-    UPDATE InstallmentPlans 
+    UPDATE InstallmentPlans
     SET title = ?,
-    total_amount = ?, 
+    total_amount = ?,
     total_installments = ?,
     installment_amount = ?,
-    start_date = ?, 
+    start_date = ?,
     pay_date = ?,
     status = ?,
     category_id = ?,
-    subcategory_id = ? 
+    subcategory_id = ?
+    from_account_id = ?
+    next_payment_date = ?
+    remaining_installments = ?
     WHERE id = ?`
 
 	res, err := db.DB.Exec(query,
 		i.Title, i.TotalAmount, i.TotalInstallments, i.InstallmentsAmount,
-		i.StartDate, i.PayDate, i.Status, i.CategoryID, i.SubCategoryID, id,
+		i.StartDate, i.PayDate, i.Status, i.CategoryID, i.SubCategoryID,
+		i.FromAccountID, i.NextPaymentDate, i.RemainingInstallments, id,
 	)
 	if err != nil {
 		return 0, err
@@ -170,16 +183,17 @@ func (Installment) TableName() string {
 
 func (i Installment) GetSelectQuery() string {
 	return fmt.Sprintf(`
-        SELECT * 
+        SELECT *
         FROM %s
-        ORDER BY ID DESC 
+        ORDER BY ID DESC
         LIMIT ? OFFSET ?`, i.TableName())
 }
 
 func (i *Installment) Scan(rows *sql.Rows) error {
 	return rows.Scan(
 		&i.ID, &i.Title, &i.TotalAmount, &i.TotalInstallments,
-		&i.InstallmentsAmount, &i.StartDate, &i.PayDate, &i.Status,
-		&i.CategoryID, &i.SubCategoryID,
+		&i.RemainingInstallments, &i.InstallmentsAmount, &i.StartDate,
+		&i.NextPaymentDate, &i.PayDate, &i.Status, &i.CategoryID,
+		&i.FromAccountID, &i.SubCategoryID,
 	)
 }

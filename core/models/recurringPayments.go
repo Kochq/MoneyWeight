@@ -13,18 +13,20 @@ type RecurringPayment struct {
 	Amount        float64 `json:"amount"`
 	CategoryID    int     `json:"category_id"`
 	SubCategoryID int     `json:"subcategory_id"`
-	IsActive      bool    `json:"is_active"`
+	Status      bool    `json:"status"`
 	StartDate     string  `json:"start_date"`
-	EndDate       string  `json:"end_date"`
+	PayDate       string  `json:"pay_date"`
 	Frequency     string  `json:"frequency"`
+	FromAccountID int     `json:"from_account_id"`
+	Payments      int     `json:"payments"`
 }
 
 func (rp *RecurringPayment) Create() (int, error) {
 	if rp.StartDate == "" {
 		rp.StartDate = time.Now().Format("2006-01-02 15:04:05")
 	}
-	if rp.EndDate == "" {
-		rp.EndDate = time.Now().Format("2006-01-02 15:04:05")
+	if rp.PayDate == "" {
+		rp.PayDate = time.Now().Format("2006-01-02 15:04:05")
 	}
 
 	if rp.Frequency == "" {
@@ -37,14 +39,14 @@ func (rp *RecurringPayment) Create() (int, error) {
 func (rp *RecurringPayment) Insert() (int, error) {
 	query := `
     INSERT INTO RecurringPayments (
-    title, amount, category_id, subcategory_id, is_active, start_date,
-    end_date, frequency
+    title, amount, category_id, subcategory_id, status, start_date,
+    pay_date, frequency, from_account_id, payments
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 
 	res, err := db.DB.Exec(query,
-		&rp.Title, &rp.Amount, &rp.CategoryID, &rp.SubCategoryID, &rp.IsActive,
-		&rp.StartDate, &rp.EndDate, &rp.Frequency,
+		&rp.Title, &rp.Amount, &rp.CategoryID, &rp.SubCategoryID, &rp.Status,
+		&rp.StartDate, &rp.PayDate, &rp.Frequency, &rp.FromAccountID, &rp.Payments,
 	)
 	if err != nil {
 		return 0, err
@@ -56,20 +58,23 @@ func (rp *RecurringPayment) Insert() (int, error) {
 
 func (rp *RecurringPayment) SetEntity(id int) (int, error) {
 	query := `
-    UPDATE RecurringPayments 
-    SET title = ?, 
+    UPDATE RecurringPayments
+    SET title = ?,
     amount = ?,
     category_id = ?,
     subcategory_id = ?,
-    is_active = ?,
+    status = ?,
     start_date = ?,
-    end_date = ?,
+    pay_date = ?,
     frequency = ?
+    from_account_id = ?
+    payments = ?
     WHERE id = ?`
 
 	res, err := db.DB.Exec(query,
-		&rp.Title, &rp.Amount, &rp.CategoryID, &rp.SubCategoryID, &rp.IsActive,
-		&rp.StartDate, &rp.EndDate, &rp.Frequency, id,
+		&rp.Title, &rp.Amount, &rp.CategoryID, &rp.SubCategoryID, &rp.Status,
+		&rp.StartDate, &rp.PayDate, &rp.Frequency, &rp.FromAccountID,
+		&rp.Payments, id,
 	)
 	if err != nil {
 		return 0, err
@@ -105,15 +110,16 @@ func (RecurringPayment) TableName() string {
 
 func (rp RecurringPayment) GetSelectQuery() string {
 	return fmt.Sprintf(`
-    SELECT * 
+    SELECT *
     FROM %s
-    ORDER BY ID DESC 
+    ORDER BY ID DESC
     LIMIT ? OFFSET ?`, rp.TableName())
 }
 
 func (rp *RecurringPayment) Scan(rows *sql.Rows) error {
 	return rows.Scan(
-		&rp.ID, &rp.Title, &rp.Amount, &rp.Frequency, &rp.StartDate, &rp.EndDate,
-		&rp.IsActive, &rp.CategoryID, &rp.SubCategoryID,
+		&rp.ID, &rp.Title, &rp.Amount, &rp.Frequency, &rp.StartDate,
+		&rp.PayDate, &rp.Status, &rp.CategoryID, &rp.SubCategoryID,
+		&rp.FromAccountID, &rp.Payments,
 	)
 }

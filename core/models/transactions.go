@@ -20,7 +20,10 @@ type Transaction struct {
 	Date               string  `json:"date"` // Podríamos usar time.Time
 	InstallmentPlanID  *int    `json:"installment_plan_id,omitempty"`
 	RecurringPaymentID *int    `json:"recurring_payment_id,omitempty"`
+	FromAccountID      int     `json:"from_account_id"`
+	ToAccountID        *int    `json:"to_account_id,omitempty"`
 	PaymentNumber      *int    `json:"payment_number,omitempty"`
+	Status             string  `json:"status"`
 }
 
 func (t *Transaction) Create() (int, error) {
@@ -33,16 +36,16 @@ func (t *Transaction) Create() (int, error) {
 func (t *Transaction) Insert() (int, error) {
 	query := `
     INSERT INTO Transactions (
-    title, amount, category_id, subcategory_id,
-    currency, payment_method, exchange_rate,
-    notes, date, installment_plan_id,
-    recurring_payment_id, payment_number
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    title, amount, category_id, subcategory_id, currency, payment_method,
+    exchange_rate, notes, date, installment_plan_id, recurring_payment_id,
+    payment_number, from_account_id, to_account_id, status
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 
 	result, err := db.DB.Exec(query,
 		t.Title, t.Amount, t.CategoryID, t.SubCategoryID, t.Currency,
 		t.PaymentMethod, t.ExchangeRate, t.Notes, t.Date, t.InstallmentPlanID,
-		t.RecurringPaymentID, t.PaymentNumber)
+		t.RecurringPaymentID, t.PaymentNumber, t.FromAccountID, t.ToAccountID,
+		t.Status)
 
 	if err != nil {
 		return 0, err
@@ -54,12 +57,12 @@ func (t *Transaction) Insert() (int, error) {
 
 func (t Transaction) SetEntity(id int) (int, error) {
 	query := `
-    UPDATE Transactions 
-    SET title = ?, 
-    amount = ?, 
-    category_id = ?, 
+    UPDATE Transactions
+    SET title = ?,
+    amount = ?,
+    category_id = ?,
     subcategory_id = ?,
-    currency = ?, 
+    currency = ?,
     payment_method = ?,
     exchange_rate = ?,
     notes = ?,
@@ -67,13 +70,17 @@ func (t Transaction) SetEntity(id int) (int, error) {
     installment_plan_id = ?,
     recurring_payment_id = ?,
     payment_number = ?
+    from_account_id = ?
+    to_account_id = ?
+    status = ?
     WHERE id = ?
     `
 
 	res, err := db.DB.Exec(query,
 		t.Title, t.Amount, t.CategoryID, t.SubCategoryID, t.Currency,
 		t.PaymentMethod, t.ExchangeRate, t.Notes, t.Date, t.InstallmentPlanID,
-		t.RecurringPaymentID, t.PaymentNumber, id,
+		t.RecurringPaymentID, t.PaymentNumber, t.FromAccountID, t.ToAccountID,
+		t.Status, id,
 	)
 	if err != nil {
 		return 0, err
@@ -109,16 +116,17 @@ func (Transaction) TableName() string {
 
 func (t Transaction) GetSelectQuery() string {
 	return fmt.Sprintf(`
-        SELECT * 
-        FROM %s 
-        ORDER BY date DESC 
+        SELECT *
+        FROM %s
+        ORDER BY date DESC
         LIMIT ? OFFSET ?`, t.TableName())
 }
 
 func (t *Transaction) Scan(rows *sql.Rows) error {
 	return rows.Scan(
-		&t.ID, &t.Title, &t.Amount, &t.CategoryID, &t.SubCategoryID,
-		&t.Currency, &t.PaymentMethod, &t.ExchangeRate, &t.Notes, &t.Date,
-		&t.InstallmentPlanID, &t.RecurringPaymentID, &t.PaymentNumber,
+		&t.ID, &t.Title, &t.Amount, &t.CategoryID, &t.FromAccountID,
+		&t.ToAccountID, &t.SubCategoryID, &t.Currency, &t.PaymentMethod,
+		&t.ExchangeRate, &t.Notes, &t.Date, &t.Status, &t.InstallmentPlanID,
+		&t.RecurringPaymentID, &t.PaymentNumber,
 	)
 }

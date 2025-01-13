@@ -40,7 +40,7 @@ func GetEntities[T Entity](c *gin.Context, newT func() T) {
 	for rows.Next() {
 		entity := newT()
 		if err := entity.Scan(rows); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Scan error"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
 		entities = append(entities, entity)

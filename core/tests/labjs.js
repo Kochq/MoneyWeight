@@ -21,7 +21,8 @@ const addTransaction = () => {
             payment_method: "cosa",
             exchange_rate: 1500,
             notes: "esto es una nota",
-            payment_number: 2
+            payment_number: 2,
+            from_account_id: 1
         })
     })
         .then(res => res.json())
@@ -78,7 +79,8 @@ const addInstallment = () => {
             category_id: 1,
             installments_amount: 0,
             subcategory_id: 1,
-            status: "nosesiestova"
+            status: "nosesiestova",
+            from_account_id: 1
         })
     })
         .then(res => res.json())
@@ -98,6 +100,7 @@ const addRecurringPayment = () => {
             is_active: true,
             category_id: 1,
             subcategory_id: 1,
+            from_account_id: 1
         })
     })
         .then(res => res.json())
