@@ -18,6 +18,7 @@ func main() {
 
 	api := r.Group("/api")
 	{
+		api.GET("/transactions/details", routes.GetTransactionDetails)
 		api.GET("/transactions", routes.GetTransactions)
 		api.POST("/transactions", routes.AddTransaction)
 		api.PUT("/transactions/:id", routes.UpdateTransaction)
@@ -34,7 +35,7 @@ func main() {
 	{
 		api.GET("/recurring", routes.GetRecurringPayments)
 		api.POST("/recurring", routes.AddRecurringPayment)
-        api.PUT("/recurring/:id", routes.UpdateRecurringPayment)
+		api.PUT("/recurring/:id", routes.UpdateRecurringPayment)
 		api.DELETE("/recurring/:id", routes.RemoveRecurringPayment)
 	}
 

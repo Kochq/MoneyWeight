@@ -21,7 +21,7 @@ type Transaction struct {
 	InstallmentPlanID  *int    `json:"installment_plan_id,omitempty"`
 	RecurringPaymentID *int    `json:"recurring_payment_id,omitempty"`
 	FromAccountID      int     `json:"from_account_id"`
-	ToAccountID        *int    `json:"to_account_id,omitempty"`
+	ToAccountID        *int64  `json:"to_account_id,omitempty"`
 	PaymentNumber      *int    `json:"payment_number,omitempty"`
 	Status             string  `json:"status"`
 }
