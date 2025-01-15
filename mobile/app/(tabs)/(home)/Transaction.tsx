@@ -1,28 +1,23 @@
-import { View, Text, StyleSheet } from "react-native";
-
-interface Transaction {
-    id: number;
-    title: string;
-    amount: number;
-    category_id: number;
-    subcategory_id: number;
-    currency: string;
-    payment_method: string;
-    exchange_rate: number;
-    notes: string;
-    date: string; // 2025-01-01 00:00:00
-    installment_plan_id: number;
-    recurring_payment_id: number;
-    payment_number: number;
-}
+import { Transaction } from "@/types";
+import { View, Text, StyleSheet, Image } from "react-native";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 export default function TransactionCard({ t }: { t: Transaction }) {
     const day = t.date.split(" ")[0];
 
     return (
         <View style={styles.container}>
-            <View style={styles.title}>
-                <Text style={{ color: "#fff" }}>{t.title}</Text>
+            <View style={styles.titles}>
+                <MaterialIcons name="category" size={24} color="black" />
+                <View style={styles.title}>
+                    <Text
+                        style={{ color: "#fff" }}
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                    >
+                        {t.title}
+                    </Text>
+                </View>
             </View>
             <View style={styles.desc}>
                 <Text style={{ color: "#0F0" }}>{`$ ${t.amount}`}</Text>
@@ -33,26 +28,41 @@ export default function TransactionCard({ t }: { t: Transaction }) {
 }
 
 const styles = StyleSheet.create({
+    titles: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 10,
+    },
+
     container: {
         borderRadius: 5,
         flexDirection: "row",
         borderWidth: 0.1,
         borderColor: "#fff",
-        width: 330,
+        width: 350,
         paddingVertical: 10,
         paddingHorizontal: 20,
-        justifyContent: "center",
         alignItems: "center",
         backgroundColor: "#222",
-        gap: 10,
+        justifyContent: "space-between",
     },
 
     title: {
-        flex: 1,
+        width: "60%",
     },
 
     desc: {
         flexDirection: "column",
         alignItems: "flex-end",
+    },
+
+    category: {
+        color: "#fff",
+        fontSize: 12,
+        paddingVertical: 3,
+        paddingHorizontal: 10,
+        borderWidth: 0.5,
+        borderColor: "#fff",
+        borderRadius: 5,
     },
 });

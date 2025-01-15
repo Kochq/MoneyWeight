@@ -1,28 +1,13 @@
 import { useEffect, useState } from "react";
 import { View, Text, StyleSheet, FlatList, Platform } from "react-native";
 import TransactionCard from "./Transaction";
-
-interface Transaction {
-    id: number;
-    title: string;
-    amount: number;
-    category_id: number;
-    subcategory_id: number;
-    currency: string;
-    payment_method: string;
-    exchange_rate: number;
-    notes: string;
-    date: string;
-    installment_plan_id: number;
-    recurring_payment_id: number;
-    payment_number: number;
-}
+import { Transaction } from "@/types";
 
 export default function HomeScreen() {
     const [transactions, setTransactions] = useState<Transaction[]>([]);
 
     const getTransactions = async () => {
-        let url = "http://192.168.100.195:8080/api/transactions";
+        let url = "http://192.168.100.195:8080/api/transactions/details";
 
         const response = await fetch(url);
         const data = await response.json();
