@@ -1,5 +1,5 @@
 import { Transaction } from "@/types";
-import { View, Text, StyleSheet, Image } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 export default function TransactionCard({ t }: { t: Transaction }) {
@@ -39,12 +39,13 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         borderWidth: 0.1,
         borderColor: "#fff",
-        width: 350,
+        width: "100%",
         paddingVertical: 10,
         paddingHorizontal: 20,
         alignItems: "center",
         backgroundColor: "#222",
         justifyContent: "space-between",
+        marginBottom: 10,
     },
 
     title: {
@@ -54,15 +55,5 @@ const styles = StyleSheet.create({
     desc: {
         flexDirection: "column",
         alignItems: "flex-end",
-    },
-
-    category: {
-        color: "#fff",
-        fontSize: 12,
-        paddingVertical: 3,
-        paddingHorizontal: 10,
-        borderWidth: 0.5,
-        borderColor: "#fff",
-        borderRadius: 5,
     },
 });

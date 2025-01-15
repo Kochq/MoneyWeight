@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
-import { View, Text, StyleSheet, FlatList, Platform } from "react-native";
+import { StyleSheet, FlatList } from "react-native";
 import TransactionCard from "./Transaction";
 import { Transaction } from "@/types";
+import { TotalCard } from "./TotalCard";
+import Screen from "./Screen";
+import { Buttons } from "./Buttons";
 
 export default function HomeScreen() {
     const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -23,8 +26,9 @@ export default function HomeScreen() {
     }, []);
 
     return (
-        <View style={styles.container}>
-            <Text style={{ color: "#fff" }}>Home</Text>
+        <Screen>
+            <TotalCard />
+            <Buttons />
             <FlatList
                 style={styles.list}
                 contentContainerStyle={styles.listContent}
@@ -32,34 +36,18 @@ export default function HomeScreen() {
                 renderItem={({ item }) => <TransactionCard t={item} />}
                 keyExtractor={(item) => item.id.toString()}
             />
-        </View>
+        </Screen>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "#222",
-        gap: 10,
-    },
-
     list: {
         width: "100%",
-    },
-
-    link: {
-        color: "blue",
-        backgroundColor: "lightblue",
-        padding: 10,
-        borderRadius: 5,
     },
 
     listContent: {
         alignItems: "center",
         justifyContent: "center",
         width: "100%",
-        gap: 10,
     },
 });
