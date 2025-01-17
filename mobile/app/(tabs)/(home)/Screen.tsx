@@ -12,7 +12,6 @@ export default function Screen({ children }: ScreenProps) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: "center",
         alignItems: "center",
         backgroundColor: "#222",
         paddingTop: 16,

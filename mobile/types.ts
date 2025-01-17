@@ -27,3 +27,10 @@ export interface Transaction {
     total_installments: number;
     recurring_title: string;
 }
+
+export interface Category {
+    id: number;
+    name: string;
+    type: string;
+    icon: string;
+}

@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text } from "react-native";
+import { Pressable, StyleSheet } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Link } from "expo-router";
 
@@ -17,5 +17,6 @@ const styles = StyleSheet.create({
         borderWidth: 3,
         borderRadius: 100,
         marginBottom: 20,
+        alignItems: "center",
     },
 });
