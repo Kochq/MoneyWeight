@@ -1,17 +1,23 @@
 import { Transaction } from "@/types";
 import { View, Text, StyleSheet } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { useTheme } from "../../../theme/ThemeContext";
 
 export default function TransactionCard({ t }: { t: Transaction }) {
+    const { colors } = useTheme();
     const day = t.date.split(" ")[0];
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor: colors.surface }]}>
             <View style={styles.titles}>
-                <MaterialIcons name="category" size={24} color="black" />
+                <MaterialIcons
+                    name="category"
+                    size={24}
+                    color={colors.textPrimary}
+                />
                 <View style={styles.title}>
                     <Text
-                        style={{ color: "#fff" }}
+                        style={{ color: colors.textPrimary }}
                         numberOfLines={1}
                         ellipsizeMode="tail"
                     >
@@ -20,8 +26,8 @@ export default function TransactionCard({ t }: { t: Transaction }) {
                 </View>
             </View>
             <View style={styles.desc}>
-                <Text style={{ color: "#0F0" }}>{`$ ${t.amount}`}</Text>
-                <Text style={{ color: "#fff" }}>{day}</Text>
+                <Text style={{ color: colors.moneyIn }}>{`$ ${t.amount}`}</Text>
+                <Text style={{ color: colors.textPrimary }}>{day}</Text>
             </View>
         </View>
     );
@@ -37,13 +43,12 @@ const styles = StyleSheet.create({
     container: {
         borderRadius: 5,
         flexDirection: "row",
+        boxShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
         borderWidth: 0.1,
-        borderColor: "#fff",
         width: "100%",
         paddingVertical: 10,
         paddingHorizontal: 20,
         alignItems: "center",
-        backgroundColor: "#222",
         justifyContent: "space-between",
         marginBottom: 10,
     },

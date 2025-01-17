@@ -8,7 +8,7 @@ export default function HomeLayout() {
             screenOptions={{
                 headerShown: true,
                 headerStyle: {
-                    backgroundColor: "#f4511e",
+                    backgroundColor: "#121212",
                 },
                 headerTintColor: "#fff",
                 headerTitleStyle: {

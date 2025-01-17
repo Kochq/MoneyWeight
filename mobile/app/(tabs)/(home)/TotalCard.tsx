@@ -1,14 +1,23 @@
 import { useState } from "react";
 import { Text, View, StyleSheet, Switch } from "react-native";
+import { useTheme } from "../../../theme/ThemeContext";
 
 export const TotalCard = () => {
+    const { colors, toggleTheme } = useTheme();
     const [isEnabled, setIsEnabled] = useState(false);
-    const toggleSwitch = () => setIsEnabled((previousState) => !previousState);
+    const toggleSwitch = () => {
+        setIsEnabled((previousState) => !previousState);
+        toggleTheme();
+    };
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor: colors.surface }]}>
             <View style={styles.status}>
-                <Text style={styles.title}>Total money</Text>
-                <Text style={styles.money}>$ 1000</Text>
+                <Text style={[styles.title, { color: colors.textPrimary }]}>
+                    Total money
+                </Text>
+                <Text style={[styles.title, { color: colors.moneyIn }]}>
+                    $ 1000
+                </Text>
             </View>
             <Switch
                 style={styles.switch}
@@ -29,9 +38,9 @@ const styles = StyleSheet.create({
         height: 100,
         marginBottom: 20,
         padding: 10,
+        boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
         flexDirection: "row",
         borderRadius: 6,
-        borderColor: "#fff",
     },
 
     switch: {
@@ -47,12 +56,11 @@ const styles = StyleSheet.create({
     },
 
     title: {
-        color: "#fff",
+        color: "#FFF",
         fontSize: 20,
     },
 
     money: {
-        color: "#0F0",
         fontSize: 16,
     },
 });

@@ -3,8 +3,10 @@ import Screen from "./Screen";
 import { useEffect, useState } from "react";
 import { Picker } from "@react-native-picker/picker";
 import { Category } from "@/types";
+import { useTheme } from "../../../theme/ThemeContext";
 
 export default function AddMoney() {
+    const { colors } = useTheme();
     const [name, setName] = useState("");
     const [money, setMoney] = useState("");
     const [categories, setCategories] = useState<Category[]>([]);
@@ -35,7 +37,6 @@ export default function AddMoney() {
             >
                 <TextInput
                     placeholder="Name"
-                    // Si necesitas manejar el valor:
                     value={name}
                     onChangeText={setName}
                 />
@@ -46,7 +47,7 @@ export default function AddMoney() {
                     onChangeText={setMoney}
                 />
                 <Picker
-                    style={{ borderWidth: 1 }}
+                    style={{ borderWidth: 1, color: colors.textPrimary }}
                     selectedValue={selectedCategory}
                     onValueChange={(itemValue, itemIndex) =>
                         setSelectedCategory(itemValue)

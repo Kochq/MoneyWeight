@@ -1,0 +1,26 @@
+export const colors = {
+    light: {
+        background: "#F8F9FA",
+        surface: "#FFFFFF",
+        primary: "#6B4EFF",
+        moneyIn: "#2E7D32",
+        moneyOut: "#D32F2F",
+        installment: "#ED6C02",
+        recurring: "#0288D1",
+        textPrimary: "#1A1A1A",
+        textSecondary: "#666666",
+        border: "#E0E0E0",
+    },
+    dark: {
+        background: "#121212",
+        surface: "#1E1E1E",
+        primary: "#6B4EFF",
+        moneyIn: "#00C853",
+        moneyOut: "#FF5252",
+        installment: "#FFB300",
+        recurring: "#40C4FF",
+        textPrimary: "#FFFFFF",
+        textSecondary: "#B3B3B3",
+        border: "#333333",
+    },
+};
