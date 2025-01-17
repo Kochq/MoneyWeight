@@ -39,5 +39,12 @@ func main() {
 		api.DELETE("/recurring/:id", routes.RemoveRecurringPayment)
 	}
 
+	{
+		api.GET("/categories", routes.GetCategories)
+		api.POST("/categories", routes.AddCategory)
+		api.PUT("/categories/:id", routes.UpdateCategory)
+		api.DELETE("/categories/:id", routes.RemoveCategory)
+	}
+
 	r.Run(":8080") // Inicia el servidor en el puerto 8080
 }
