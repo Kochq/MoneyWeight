@@ -7,13 +7,44 @@ import { useTheme } from "../../../theme/ThemeContext";
 
 export default function AddMoney() {
     const { colors } = useTheme();
-    const [name, setName] = useState("");
+    const [name, setName] = useState<string>("");
     const [money, setMoney] = useState("");
     const [categories, setCategories] = useState<Category[]>([]);
-    const [selectedCategory, setSelectedCategory] = useState();
+    const [selectedCategory, setSelectedCategory] = useState<Category>();
+
+    const addTransaction = async () => {
+        let url = "http://serkq.org:8080/api/transactions";
+
+        console.log("Name: " + name);
+        console.log("Money: " + money);
+        console.log("Category: " + selectedCategory);
+        try {
+            const response = await fetch(url, {
+                method: "POST",
+                body: JSON.stringify({
+                    title: name,
+                    amount: Number(money),
+                    category_id: 1,
+                    subcategory_id: 1,
+                    currency: "ARS",
+                    payment_method: "cosa",
+                    exchange_rate: 1500,
+                    notes: "esto es una nota",
+                    from_account_id: 1,
+                }),
+            });
+
+            const data = await response.json();
+
+            console.log("Transaction added!");
+            console.log(data);
+        } catch (e) {
+            console.error(e);
+        }
+    };
 
     const getCategories = async () => {
-        let url = "http://192.168.100.195:8080/api/categories";
+        let url = "http://serkq.org:8080/api/categories";
 
         const response = await fetch(url);
         const data = await response.json();
@@ -61,12 +92,7 @@ export default function AddMoney() {
                         />
                     ))}
                 </Picker>
-                <Button
-                    title="Add"
-                    onPress={() => {
-                        alert(`Added ${money} to ${name}`);
-                    }}
-                />
+                <Button title="Add" onPress={addTransaction} />
             </View>
         </Screen>
     );

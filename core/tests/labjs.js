@@ -6,7 +6,7 @@ sub.addEventListener("click", () => id.value = parseInt(id.value) - 1)
 add.addEventListener("click", () => id.value = parseInt(id.value) + 1)
 
 const addTransaction = () => {
-    fetch('http://localhost:8080/api/transactions', {
+    fetch('http://serkq.org:8080/api/transactions', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -16,12 +16,10 @@ const addTransaction = () => {
             amount: 10002.2,
             category_id: 1,
             subcategory_id: 1,
-            date: "2023-12-27 20:18:43",
-            currency: "USD",
+            currency: "ARS",
             payment_method: "cosa",
             exchange_rate: 1500,
             notes: "esto es una nota",
-            payment_number: 2,
             from_account_id: 1
         })
     })
