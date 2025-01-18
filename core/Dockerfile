@@ -1,10 +1,10 @@
-FROM golang:1.21-alpine AS builder
+FROM golang:1.21-alpine
 
 # Install build dependencies
 RUN apk add --no-cache git gcc musl-dev
 
 # Set working directory
-WORKDIR /build
+WORKDIR /app
 
 # Copy go mod and sum files
 COPY go.mod go.sum ./
@@ -16,18 +16,10 @@ RUN go mod download
 COPY . .
 
 # Build the application
-RUN CGO_ENABLED=0 GOOS=linux go build -o api-server ./cmd/api/main.go
-
-# Start a new stage
-FROM alpine:latest
-
-WORKDIR /app
-
-# Copy the binary from builder
-COPY --from=builder /build/api-server .
+RUN go build -o moneyweight-api ./cmd/api/main.go
 
 # Expose port
 EXPOSE 8080
 
 # Run the application
-CMD ["./api-server"]
+CMD ["./moneyweight-api"]
