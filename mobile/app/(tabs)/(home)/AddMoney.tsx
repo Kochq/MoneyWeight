@@ -126,6 +126,7 @@ export default function AddMoney() {
     const showMode = (currentMode: any) => {
         DateTimePickerAndroid.open({
             value: date,
+            // @ts-ignore
             onChange,
             mode: currentMode,
             is24Hour: true,
