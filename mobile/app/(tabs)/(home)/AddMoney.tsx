@@ -27,7 +27,6 @@ export default function AddMoney() {
     const styles = StyleSheet.create({
         container: {
             flex: 1,
-            padding: 20,
             backgroundColor: colors.background,
         },
 
@@ -228,7 +227,7 @@ export default function AddMoney() {
                         </View>
 
                         <View style={styles.inputContainer}>
-                            <Text style={styles.label}>Categoría</Text>
+                            <Text style={styles.label}>Category</Text>
                             <View style={styles.picker}>
                                 <Picker
                                     selectedValue={selectedCategory}
@@ -251,7 +250,7 @@ export default function AddMoney() {
                         </View>
 
                         <View style={styles.inputContainer}>
-                            <Text style={styles.label}>Fecha y Hora</Text>
+                            <Text style={styles.label}>Date</Text>
                             <View style={styles.dateContainer}>
                                 <Text style={styles.dateText}>
                                     {date.toLocaleString()}
