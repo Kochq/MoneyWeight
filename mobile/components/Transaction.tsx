@@ -80,25 +80,28 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
         borderWidth: 0.1,
-        width: "100%",
-        paddingVertical: 10,
-        paddingHorizontal: 20,
+        minWidth: "100%",
+        maxWidth: "100%",
+        paddingVertical: 12,
+        paddingHorizontal: 12,
         alignItems: "center",
         justifyContent: "space-between",
         marginBottom: 10,
     },
+
     title: {
-        width: "60%",
+        maxWidth: "60%",
+        minWidth: "30%",
     },
 
     desc: {
         flexDirection: "column",
         alignItems: "flex-end",
-        marginRight: 10,
     },
 
     end: {
         flexDirection: "row",
         alignItems: "center",
+        gap: 10,
     },
 });

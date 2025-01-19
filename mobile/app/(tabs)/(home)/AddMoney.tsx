@@ -1,10 +1,12 @@
 import {
     View,
     TextInput,
-    Button,
     Text,
     Pressable,
     StyleSheet,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
 } from "react-native";
 import Screen from "./Screen";
 import { useEffect, useState } from "react";
@@ -24,30 +26,96 @@ export default function AddMoney() {
 
     const styles = StyleSheet.create({
         container: {
-            justifyContent: "center",
-            alignItems: "stretch",
-            width: "100%",
-            borderRadius: 10,
-            borderWidth: 1,
-            padding: 10,
-            borderColor: colors.textPrimary,
+            flex: 1,
+            padding: 20,
+            backgroundColor: colors.background,
+        },
+
+        card: {
             backgroundColor: colors.surface,
-            boxShadow: "0 0 10px 0 rgba(0, 0, 0, 0.1)",
+            minWidth: "100%",
+            borderRadius: 15,
+            padding: 20,
+            boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
         },
 
-        dateBtn: {
-            backgroundColor: colors.primary,
-            alignItems: "center",
-            padding: 5,
-            borderRadius: 5,
-            margin: 5,
+        inputContainer: {
+            marginBottom: 16,
         },
 
-        date: {
+        label: {
+            fontSize: 14,
+            color: colors.textSecondary,
+            marginBottom: 8,
+            fontWeight: "500",
+        },
+
+        input: {
+            backgroundColor: colors.background,
+            borderRadius: 10,
+            padding: 12,
+            fontSize: 16,
+            color: colors.textPrimary,
+            borderWidth: 1,
+            borderColor: colors.border,
+        },
+
+        picker: {
+            backgroundColor: colors.background,
+            borderRadius: 10,
+            marginBottom: 16,
+            borderWidth: 1,
+            borderColor: colors.border,
+        },
+
+        dateContainer: {
             flexDirection: "row",
             alignItems: "center",
-            width: "100%",
-            justifyContent: "center",
+            marginBottom: 20,
+            backgroundColor: colors.background,
+            borderRadius: 10,
+            padding: 12,
+            borderWidth: 1,
+            borderColor: colors.border,
+        },
+
+        dateText: {
+            flex: 1,
+            color: colors.textPrimary,
+            fontSize: 16,
+        },
+
+        dateButton: {
+            padding: 8,
+            borderRadius: 8,
+            marginLeft: 8,
+            backgroundColor: colors.primary + "20",
+        },
+
+        addButton: {
+            backgroundColor: colors.primary,
+            borderRadius: 12,
+            padding: 16,
+            alignItems: "center",
+            marginTop: 10,
+        },
+
+        addButtonText: {
+            color: colors.surface,
+            fontSize: 16,
+            fontWeight: "600",
+        },
+
+        moneyInput: {
+            fontSize: 24,
+            textAlign: "center",
+            color: colors.primary,
+            fontWeight: "bold",
+        },
+
+        titleInput: {
+            textAlign: "center",
+            color: colors.textPrimary,
         },
     });
 
@@ -55,6 +123,7 @@ export default function AddMoney() {
         const currentDate = selectedDate;
         setDate(currentDate);
     };
+
     const showMode = (currentMode: any) => {
         DateTimePickerAndroid.open({
             value: date,
@@ -64,117 +133,163 @@ export default function AddMoney() {
         });
     };
 
-    const showDatepicker = () => {
-        showMode("date");
-    };
-
-    const showTimepicker = () => {
-        showMode("time");
-    };
+    const showDatepicker = () => showMode("date");
+    const showTimepicker = () => showMode("time");
 
     const addTransaction = async () => {
-        let url = "http://serkq.org:8080/api/transactions";
+        if (!name || !money) {
+            alert("Por favor completa todos los campos");
+            return;
+        }
 
-        console.log("Name: " + name);
-        console.log("Money: " + money);
-        console.log("Category: " + selectedCategory);
-
-        // formatDate: "2023-12-27 20:18:43",
         const formatDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
 
         try {
-            const response = await fetch(url, {
-                method: "POST",
-                body: JSON.stringify({
-                    title: name,
-                    amount: Number(money),
-                    category_id: 1,
-                    subcategory_id: 1,
-                    currency: "ARS",
-                    payment_method: "cosa",
-                    date: formatDate,
-                    exchange_rate: 1500,
-                    notes: "esto es una nota",
-                    from_account_id: 1,
-                }),
-            });
+            const response = await fetch(
+                "http://serkq.org:8080/api/transactions",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        title: name,
+                        amount: Number(money),
+                        category_id: selectedCategory || 1,
+                        subcategory_id: 1,
+                        currency: "ARS",
+                        payment_method: "cosa",
+                        date: formatDate,
+                        exchange_rate: 1500,
+                        notes: "esto es una nota",
+                        from_account_id: 1,
+                    }),
+                },
+            );
 
             const data = await response.json();
-
-            console.log("Transaction added!");
-            console.log(data);
             alert(data.status);
+
+            // Limpiar formulario
+            setName("");
+            setMoney("");
+            setDate(new Date());
         } catch (e) {
+            alert("Error al guardar la transacción");
             console.error(e);
         }
     };
 
     const getCategories = async () => {
-        let url = "http://serkq.org:8080/api/categories";
-
-        const response = await fetch(url);
-        const data = await response.json();
-
-        console.log("Data fetched!");
-        setCategories(data.data);
+        try {
+            const response = await fetch(
+                "http://serkq.org:8080/api/categories",
+            );
+            const data = await response.json();
+            setCategories(data.data);
+        } catch (e) {
+            console.error("Error al obtener categorías:", e);
+        }
     };
 
     useEffect(() => {
-        console.log("");
-        console.log("Fetching data...");
         getCategories();
     }, []);
 
     return (
         <Screen>
-            <View style={styles.container}>
-                <TextInput
-                    placeholder="Name"
-                    value={name}
-                    onChangeText={setName}
-                />
-                <TextInput
-                    placeholder="Money"
-                    keyboardType="numeric"
-                    value={money}
-                    onChangeText={setMoney}
-                />
-                <Picker
-                    style={{ borderWidth: 1, color: colors.textPrimary }}
-                    selectedValue={selectedCategory}
-                    onValueChange={(itemValue, itemIndex) =>
-                        setSelectedCategory(itemValue)
-                    }
-                >
-                    {categories.map((category) => (
-                        <Picker.Item
-                            key={category.id}
-                            label={category.name}
-                            value={category.id}
-                        />
-                    ))}
-                </Picker>
-                <View style={styles.date}>
-                    <Text>Date: {date.toLocaleString()}</Text>
-                    <Pressable style={styles.dateBtn} onPress={showDatepicker}>
-                        <Ionicons
-                            name="calendar"
-                            size={24}
-                            color={colors.surface}
-                        />
-                    </Pressable>
-                    <Pressable style={styles.dateBtn} onPress={showTimepicker}>
-                        <Ionicons
-                            name="time"
-                            size={24}
-                            color={colors.surface}
-                        />
-                    </Pressable>
-                </View>
-                <Pressable style={styles.dateBtn} onPress={addTransaction}>
-                    <Text style={{ color: colors.surface }}>Add</Text>
-                </Pressable>
-            </View>
+            <KeyboardAvoidingView
+                behavior={Platform.OS === "ios" ? "padding" : "height"}
+                style={styles.container}
+            >
+                <ScrollView>
+                    <View style={styles.card}>
+                        <View style={styles.inputContainer}>
+                            <Text style={styles.label}>Monto</Text>
+                            <TextInput
+                                style={[styles.input, styles.moneyInput]}
+                                placeholder="$0.00"
+                                keyboardType="numeric"
+                                value={money}
+                                placeholderTextColor={colors.textSecondary}
+                                onChangeText={setMoney}
+                            />
+                        </View>
+
+                        <View style={styles.inputContainer}>
+                            <Text style={styles.label}>Titulo</Text>
+                            <TextInput
+                                style={[styles.input, styles.titleInput]}
+                                placeholder="What did you buy?"
+                                value={name}
+                                placeholderTextColor={colors.textSecondary}
+                                onChangeText={setName}
+                            />
+                        </View>
+
+                        <View style={styles.inputContainer}>
+                            <Text style={styles.label}>Categoría</Text>
+                            <View style={styles.picker}>
+                                <Picker
+                                    selectedValue={selectedCategory}
+                                    onValueChange={setSelectedCategory}
+                                    style={{ color: colors.textPrimary }}
+                                >
+                                    <Picker.Item
+                                        label="Select a category"
+                                        value={null}
+                                    />
+                                    {categories.map((category) => (
+                                        <Picker.Item
+                                            key={category.id}
+                                            label={category.name}
+                                            value={category.id}
+                                        />
+                                    ))}
+                                </Picker>
+                            </View>
+                        </View>
+
+                        <View style={styles.inputContainer}>
+                            <Text style={styles.label}>Fecha y Hora</Text>
+                            <View style={styles.dateContainer}>
+                                <Text style={styles.dateText}>
+                                    {date.toLocaleString()}
+                                </Text>
+                                <Pressable
+                                    style={styles.dateButton}
+                                    onPress={showDatepicker}
+                                >
+                                    <Ionicons
+                                        name="calendar"
+                                        size={24}
+                                        color={colors.primary}
+                                    />
+                                </Pressable>
+                                <Pressable
+                                    style={styles.dateButton}
+                                    onPress={showTimepicker}
+                                >
+                                    <Ionicons
+                                        name="time"
+                                        size={24}
+                                        color={colors.primary}
+                                    />
+                                </Pressable>
+                            </View>
+                        </View>
+
+                        <Pressable
+                            style={styles.addButton}
+                            onPress={addTransaction}
+                        >
+                            <Text style={styles.addButtonText}>
+                                Agregar Transacción
+                            </Text>
+                        </Pressable>
+                    </View>
+                </ScrollView>
+            </KeyboardAvoidingView>
         </Screen>
     );
 }
