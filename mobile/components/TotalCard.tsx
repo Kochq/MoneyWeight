@@ -1,23 +1,22 @@
 import { useState } from "react";
-import { Text, View, StyleSheet, Switch } from "react-native";
+import { Text, View, Switch } from "react-native";
 import { useTheme } from "../theme/ThemeContext";
+import { TotalCardStyles } from "@/styles/styles";
 
 export default function TotalCard() {
     const { colors, toggleTheme } = useTheme();
     const [isEnabled, setIsEnabled] = useState(false);
+    const styles = TotalCardStyles(colors);
     const toggleSwitch = () => {
         setIsEnabled((previousState) => !previousState);
         toggleTheme();
     };
+
     return (
         <View style={[styles.container, { backgroundColor: colors.surface }]}>
             <View style={styles.status}>
-                <Text style={[styles.title, { color: colors.textPrimary }]}>
-                    Total money
-                </Text>
-                <Text style={[styles.title, { color: colors.moneyIn }]}>
-                    $ 1000
-                </Text>
+                <Text style={styles.title}>Total money</Text>
+                <Text style={styles.title}>$ 1000</Text>
             </View>
             <Switch
                 style={styles.switch}
@@ -30,37 +29,3 @@ export default function TotalCard() {
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        borderWidth: 0.1,
-        width: "100%",
-        height: 100,
-        marginBottom: 20,
-        padding: 10,
-        boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
-        flexDirection: "row",
-        borderRadius: 6,
-    },
-
-    switch: {
-        height: "50%",
-        width: "50%",
-    },
-
-    status: {
-        height: "100%",
-        width: "50%",
-        flexDirection: "column",
-        justifyContent: "space-between",
-    },
-
-    title: {
-        color: "#FFF",
-        fontSize: 20,
-    },
-
-    money: {
-        fontSize: 16,
-    },
-});
