@@ -2,7 +2,7 @@ import { Href, Link } from "expo-router";
 import { ReactNode } from "react";
 import { Pressable } from "react-native";
 
-export const Boton = ({
+export default function Boton({
     children,
     to,
     color,
@@ -10,7 +10,7 @@ export const Boton = ({
     children: ReactNode;
     to: Href;
     color: string;
-}) => {
+}) {
     return (
         <Link asChild href={to}>
             <Pressable
@@ -26,4 +26,4 @@ export const Boton = ({
             </Pressable>
         </Link>
     );
-};
+}

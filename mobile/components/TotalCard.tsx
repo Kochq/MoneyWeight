@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Text, View, StyleSheet, Switch } from "react-native";
-import { useTheme } from "../../../theme/ThemeContext";
+import { useTheme } from "../theme/ThemeContext";
 
-export const TotalCard = () => {
+export default function TotalCard() {
     const { colors, toggleTheme } = useTheme();
     const [isEnabled, setIsEnabled] = useState(false);
     const toggleSwitch = () => {
@@ -29,7 +29,7 @@ export const TotalCard = () => {
             />
         </View>
     );
-};
+}
 
 const styles = StyleSheet.create({
     container: {

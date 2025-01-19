@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { StyleSheet, FlatList, RefreshControl } from "react-native";
-import TransactionCard from "./Transaction";
+import TransactionCard from "@/components/Transaction";
+import TotalCard from "@/components/TotalCard";
+import Buttons from "@/components/Buttons";
 import { Transaction } from "@/types";
-import { TotalCard } from "./TotalCard";
 import Screen from "./Screen";
-import { Buttons } from "./Buttons";
 
 export default function HomeScreen() {
     const [transactions, setTransactions] = useState<Transaction[]>([]);
