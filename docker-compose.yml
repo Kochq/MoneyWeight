@@ -1,6 +1,6 @@
 services:
   api:
-    build: 
+    build:
       context: ./core
       dockerfile: Dockerfile
     ports:
@@ -13,7 +13,7 @@ services:
     networks:
       - app-network
     restart: always
-    entrypoint: ["/bin/sh", "-c", "sleep 180 && /app/moneyweight-api"]
+    entrypoint: ["/bin/sh", "-c", "sleep 10 && /app/moneyweight-api"]
 
   db:
     image: mysql:8.0
@@ -24,7 +24,7 @@ services:
       - MYSQL_DATABASE=MoneyWeight
       - MYSQL_USER=koch
       - MYSQL_PASSWORD=password
-    command: 
+    command:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
       - --default-authentication-plugin=mysql_native_password
