@@ -23,6 +23,7 @@ export default function AddMoney() {
     const [categories, setCategories] = useState<Category[]>([]);
     const [selectedCategory, setSelectedCategory] = useState<Category>();
     const [date, setDate] = useState<Date>(new Date());
+    const apiUrl = process.env.EXPO_PUBLIC_API_BASE;
 
     const styles = StyleSheet.create({
         container: {
@@ -144,28 +145,27 @@ export default function AddMoney() {
 
         const formatDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
 
+        const url = apiUrl + "/api/transactions";
+
         try {
-            const response = await fetch(
-                "http://serkq.org:8080/api/transactions",
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        title: name,
-                        amount: Number(money),
-                        category_id: selectedCategory || 1,
-                        subcategory_id: 1,
-                        currency: "ARS",
-                        payment_method: "cosa",
-                        date: formatDate,
-                        exchange_rate: 1500,
-                        notes: "esto es una nota",
-                        from_account_id: 1,
-                    }),
+            const response = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
                 },
-            );
+                body: JSON.stringify({
+                    title: name,
+                    amount: Number(money),
+                    category_id: selectedCategory || 1,
+                    subcategory_id: 1,
+                    currency: "ARS",
+                    payment_method: "cosa",
+                    date: formatDate,
+                    exchange_rate: 1500,
+                    notes: "esto es una nota",
+                    from_account_id: 1,
+                }),
+            });
 
             const data = await response.json();
             alert(data.status);
@@ -182,9 +182,9 @@ export default function AddMoney() {
 
     const getCategories = async () => {
         try {
-            const response = await fetch(
-                "http://serkq.org:8080/api/categories",
-            );
+            const url = apiUrl + "/api/categories";
+            console.log(url);
+            const response = await fetch(url);
             const data = await response.json();
             setCategories(data.data);
         } catch (e) {

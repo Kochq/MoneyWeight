@@ -3,9 +3,10 @@ import { View, Text, StyleSheet, Pressable } from "react-native";
 
 export default function TransactionScreen() {
     const { id } = useLocalSearchParams();
+    const apiUrl = process.env.EXPO_PUBLIC_API_BASE;
 
     const removeTransaction = async (id: any) => {
-        let url = `http://serkq.org:8080/api/transactions/${id}`;
+        const url = apiUrl + `/api/transactions/${id}`;
 
         // formatDate: "2023-12-27 20:18:43",
         try {

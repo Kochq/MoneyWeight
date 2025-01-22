@@ -9,6 +9,7 @@ import Screen from "./Screen";
 export default function HomeScreen() {
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [refreshing, setRefreshing] = useState(false);
+    const apiUrl = process.env.EXPO_PUBLIC_API_BASE;
 
     const onRefresh = () => {
         setRefreshing(true);
@@ -17,7 +18,7 @@ export default function HomeScreen() {
     };
 
     const getTransactions = async () => {
-        let url = "http://serkq.org:8080/api/transactions/details";
+        let url = apiUrl + "/api/transactions/details";
 
         const response = await fetch(url);
         const data = await response.json();
