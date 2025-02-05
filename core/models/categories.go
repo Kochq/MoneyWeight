@@ -6,12 +6,20 @@ import (
 	"fmt"
 )
 
+type SubCategory struct {
+	ID         int    `json:"id"`
+	Name       string `json:"name"`
+	Icon       string `json:"icon"`
+	CategoryID int    `json:"category_id"`
+}
+
 type Categories struct {
-	ID          int     `json:"id"`
-	Name        string  `json:"name"`
-	Type        string  `json:"type"`
-	Icon        string `json:"icon"`
-	BudgetLimit float64 `json:"budget_limit"`
+	ID            int           `json:"id"`
+	Name          string        `json:"name"`
+	Type          string        `json:"type"`
+	Icon          string        `json:"icon"`
+	BudgetLimit   float64       `json:"budget_limit"`
+	SubCategories []SubCategory `json:"subcategories,omitempty"`
 }
 
 func (c *Categories) Create() (int, error) {
@@ -80,12 +88,57 @@ func (Categories) TableName() string {
 
 func (i Categories) GetSelectQuery() string {
 	return fmt.Sprintf(`
-        SELECT *
-        FROM %s
-        ORDER BY ID DESC
-        LIMIT ? OFFSET ?`, i.TableName())
+        WITH CategoryData AS (
+            SELECT c.*
+            FROM Categories c
+            ORDER BY c.id DESC
+            LIMIT ? OFFSET ?
+        )
+        SELECT
+            c.id,
+            c.name,
+            c.type,
+            c.icon,
+            c.budget_limit,
+            sc.id as subcategory_id,
+            sc.name as subcategory_name,
+            sc.icon as subcategory_icon
+        FROM CategoryData c
+        LEFT JOIN SubCategories sc ON c.id = sc.category_id
+        ORDER BY c.id DESC, sc.id ASC`)
 }
 
 func (c *Categories) Scan(rows *sql.Rows) error {
-	return rows.Scan(&c.ID, &c.Name, &c.Icon, &c.Type, &c.BudgetLimit)
+	var subCategory struct {
+		ID   sql.NullInt64
+		Name sql.NullString
+		Icon sql.NullString
+	}
+
+	err := rows.Scan(
+		&c.ID,
+		&c.Name,
+		&c.Type,
+		&c.Icon,
+		&c.BudgetLimit,
+		&subCategory.ID,
+		&subCategory.Name,
+		&subCategory.Icon,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	// If we have a valid subcategory, add it to the slice
+	if subCategory.ID.Valid {
+		c.SubCategories = append(c.SubCategories, SubCategory{
+			ID:         int(subCategory.ID.Int64),
+			Name:       subCategory.Name.String,
+			Icon:       subCategory.Icon.String,
+			CategoryID: c.ID,
+		})
+	}
+
+	return nil
 }
