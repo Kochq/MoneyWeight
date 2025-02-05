@@ -11,7 +11,7 @@ import {
 import Screen from "./Screen";
 import { useEffect, useState } from "react";
 import { Picker } from "@react-native-picker/picker";
-import { Category } from "@/types";
+import { Category, SubCategory } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../../../theme/ThemeContext";
 import { DateTimePickerAndroid } from "@react-native-community/datetimepicker";
@@ -22,8 +22,14 @@ export default function AddMoney() {
     const [money, setMoney] = useState("");
     const [categories, setCategories] = useState<Category[]>([]);
     const [selectedCategory, setSelectedCategory] = useState<Category>();
+    const [selectedSubCategory, setSelectedSubCategory] =
+        useState<SubCategory>();
     const [date, setDate] = useState<Date>(new Date());
     const apiUrl = process.env.EXPO_PUBLIC_API_BASE;
+
+    if (selectedCategory) {
+        console.log(selectedCategory.subcategories);
+    }
 
     const styles = StyleSheet.create({
         container: {
@@ -119,7 +125,7 @@ export default function AddMoney() {
         },
     });
 
-    const onChange = (event: any, selectedDate: Date) => {
+    const onChange = (_event: any, selectedDate: Date) => {
         const currentDate = selectedDate;
         setDate(currentDate);
     };
@@ -156,8 +162,8 @@ export default function AddMoney() {
                 body: JSON.stringify({
                     title: name,
                     amount: Number(money),
-                    category_id: selectedCategory || 1,
-                    subcategory_id: 1,
+                    category_id: selectedCategory?.id || 1,
+                    subcategory_id: selectedSubCategory?.id || 1,
                     currency: "ARS",
                     payment_method: "cosa",
                     date: formatDate,
@@ -180,21 +186,21 @@ export default function AddMoney() {
         }
     };
 
-    const getCategories = async () => {
-        try {
-            const url = apiUrl + "/api/categories";
-            console.log(url);
-            const response = await fetch(url);
-            const data = await response.json();
-            setCategories(data.data);
-        } catch (e) {
-            console.error("Error al obtener categorías:", e);
-        }
-    };
-
     useEffect(() => {
+        const getCategories = async () => {
+            try {
+                const url = apiUrl + "/api/categories";
+                console.log(url);
+                const response = await fetch(url);
+                const data = await response.json();
+                setCategories(data.data);
+            } catch (e) {
+                console.error("Error al obtener categorías:", e);
+            }
+        };
+
         getCategories();
-    }, []);
+    }, [apiUrl]);
 
     return (
         <Screen>
@@ -243,11 +249,44 @@ export default function AddMoney() {
                                         <Picker.Item
                                             key={category.id}
                                             label={category.name}
-                                            value={category.id}
+                                            value={category}
                                         />
                                     ))}
                                 </Picker>
                             </View>
+
+                            {selectedCategory && (
+                                <View style={styles.inputContainer}>
+                                    <Text style={styles.label}>
+                                        SubCategory
+                                    </Text>
+                                    <View style={styles.picker}>
+                                        <Picker
+                                            selectedValue={selectedSubCategory}
+                                            onValueChange={
+                                                setSelectedSubCategory
+                                            }
+                                            style={{
+                                                color: colors.textPrimary,
+                                            }}
+                                        >
+                                            <Picker.Item
+                                                label="Select a category"
+                                                value={null}
+                                            />
+                                            {selectedCategory.subcategories.map(
+                                                (subCategory) => (
+                                                    <Picker.Item
+                                                        key={subCategory.id}
+                                                        label={subCategory.name}
+                                                        value={subCategory}
+                                                    />
+                                                ),
+                                            )}
+                                        </Picker>
+                                    </View>
+                                </View>
+                            )}
                         </View>
 
                         <View style={styles.inputContainer}>
