@@ -28,9 +28,17 @@ export interface Transaction {
     recurring_title: string;
 }
 
+export interface SubCategory {
+    id: number;
+    name: string;
+    icon: string;
+    category_id: number;
+}
+
 export interface Category {
     id: number;
     name: string;
     type: string;
     icon: string;
+    subcategories: SubCategory[];
 }
