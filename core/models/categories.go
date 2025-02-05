@@ -116,14 +116,8 @@ func (c *Categories) Scan(rows *sql.Rows) error {
 	}
 
 	err := rows.Scan(
-		&c.ID,
-		&c.Name,
-		&c.Type,
-		&c.Icon,
-		&c.BudgetLimit,
-		&subCategory.ID,
-		&subCategory.Name,
-		&subCategory.Icon,
+		&c.ID, &c.Name, &c.Type, &c.Icon, &c.BudgetLimit,
+		&subCategory.ID, &subCategory.Name, &subCategory.Icon,
 	)
 
 	if err != nil {

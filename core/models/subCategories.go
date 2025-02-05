@@ -25,7 +25,8 @@ func (c *SubCategories) Create() (int, error) {
 
 func (c *SubCategories) Insert() (int, error) {
 	query := `
-    INSERT INTO SubCategories (name, category_id, icon, budget_limit) VALUES (?, ?, ?, ?)`
+    INSERT INTO SubCategories (name, category_id, icon, budget_limit)
+    VALUES (?, ?, ?, ?)`
 
 	result, err := db.DB.Exec(query, &c.Name, &c.CategoryID, &c.Icon, &c.BudgetLimit)
 
@@ -40,8 +41,8 @@ func (c *SubCategories) Insert() (int, error) {
 func (c SubCategories) SetEntity(id int) (int, error) {
 	query := `
     UPDATE SubCategories
-    SET name = ?,
-    category_id = ?,
+    SET category_id = ?,
+    name = ?,
     icon = ?,
     budget_limit = ?
     WHERE id = ?`
