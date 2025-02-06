@@ -211,7 +211,7 @@ export default function AddMoney() {
                 <ScrollView>
                     <View style={styles.card}>
                         <View style={styles.inputContainer}>
-                            <Text style={styles.label}>Monto</Text>
+                            <Text style={styles.label}>Amount</Text>
                             <TextInput
                                 style={[styles.input, styles.moneyInput]}
                                 placeholder="$0.00"
@@ -223,7 +223,7 @@ export default function AddMoney() {
                         </View>
 
                         <View style={styles.inputContainer}>
-                            <Text style={styles.label}>Titulo</Text>
+                            <Text style={styles.label}>Title</Text>
                             <TextInput
                                 style={[styles.input, styles.titleInput]}
                                 placeholder="What did you buy?"
@@ -233,30 +233,33 @@ export default function AddMoney() {
                             />
                         </View>
 
-                        <View style={styles.inputContainer}>
-                            <Text style={styles.label}>Category</Text>
-                            <View style={styles.picker}>
-                                <Picker
-                                    selectedValue={selectedCategory}
-                                    onValueChange={setSelectedCategory}
-                                    style={{ color: colors.textPrimary }}
-                                >
+                        <Text style={styles.label}>Category</Text>
+                        <View style={styles.picker}>
+                            <Picker
+                                selectedValue={selectedCategory}
+                                onValueChange={setSelectedCategory}
+                                style={{ color: colors.textPrimary }}
+                                prompt="Select a category"
+                            >
+                                <Picker.Item
+                                    label="Select category"
+                                    value={null}
+                                />
+                                {categories.map((category) => (
                                     <Picker.Item
-                                        label="Select a category"
-                                        value={null}
+                                        key={category.id}
+                                        label={
+                                            category.icon + " " + category.name
+                                        }
+                                        value={category}
                                     />
-                                    {categories.map((category) => (
-                                        <Picker.Item
-                                            key={category.id}
-                                            label={category.name}
-                                            value={category}
-                                        />
-                                    ))}
-                                </Picker>
-                            </View>
+                                ))}
+                            </Picker>
+                        </View>
 
-                            {selectedCategory && (
-                                <View style={styles.inputContainer}>
+                        {selectedCategory &&
+                            selectedCategory.subcategories.length > 0 && (
+                                <>
                                     <Text style={styles.label}>
                                         SubCategory
                                     </Text>
@@ -271,23 +274,26 @@ export default function AddMoney() {
                                             }}
                                         >
                                             <Picker.Item
-                                                label="Select a category"
+                                                label="Select subCategory"
                                                 value={null}
                                             />
-                                            {selectedCategory.subcategories.map(
+                                            {selectedCategory?.subcategories.map(
                                                 (subCategory) => (
                                                     <Picker.Item
                                                         key={subCategory.id}
-                                                        label={subCategory.name}
+                                                        label={
+                                                            subCategory.icon +
+                                                            " " +
+                                                            subCategory.name
+                                                        }
                                                         value={subCategory}
                                                     />
                                                 ),
                                             )}
                                         </Picker>
                                     </View>
-                                </View>
+                                </>
                             )}
-                        </View>
 
                         <View style={styles.inputContainer}>
                             <Text style={styles.label}>Date</Text>
