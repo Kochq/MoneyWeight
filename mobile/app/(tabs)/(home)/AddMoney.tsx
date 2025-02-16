@@ -190,7 +190,6 @@ export default function AddMoney() {
         const getCategories = async () => {
             try {
                 const url = apiUrl + "/api/categories";
-                console.log(url);
                 const response = await fetch(url);
                 const data = await response.json();
                 setCategories(data.data);

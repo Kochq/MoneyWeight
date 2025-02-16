@@ -42,3 +42,14 @@ export interface Category {
     icon: string;
     subcategories: SubCategory[];
 }
+
+export interface Accounts {
+    id: number;
+    name: string;
+    type: string;
+    current_balance: number;
+    currency: string;
+    Institution: string;
+    is_active: boolean;
+    created_at: string;
+}
