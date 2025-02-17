@@ -141,7 +141,10 @@ const AccountSelector = () => {
                                             },
                                         ]}
                                     >
-                                        {account.name}
+                                        {account.name +
+                                            " " +
+                                            account.current_balance +
+                                            "$"}
                                     </Text>
                                 </TouchableOpacity>
                             ))}

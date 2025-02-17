@@ -11,7 +11,7 @@ import {
 import Screen from "./Screen";
 import { useEffect, useState } from "react";
 import { Picker } from "@react-native-picker/picker";
-import { Category, SubCategory } from "@/types";
+import { Category, SubCategory, Accounts } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../../../theme/ThemeContext";
 import { DateTimePickerAndroid } from "@react-native-community/datetimepicker";
@@ -21,7 +21,9 @@ export default function AddMoney() {
     const [name, setName] = useState<string>("");
     const [money, setMoney] = useState("");
     const [categories, setCategories] = useState<Category[]>([]);
+    const [accounts, setAccounts] = useState<Accounts[]>([]);
     const [selectedCategory, setSelectedCategory] = useState<Category>();
+    const [selectedAccount, setSelectedAccount] = useState<Accounts>();
     const [selectedSubCategory, setSelectedSubCategory] =
         useState<SubCategory>();
     const [date, setDate] = useState<Date>(new Date());
@@ -144,7 +146,7 @@ export default function AddMoney() {
     const showTimepicker = () => showMode("time");
 
     const addTransaction = async () => {
-        if (!name || !money) {
+        if (!name || !money || !selectedAccount || !selectedCategory) {
             alert("Por favor completa todos los campos");
             return;
         }
@@ -169,7 +171,7 @@ export default function AddMoney() {
                     date: formatDate,
                     exchange_rate: 1500,
                     notes: "esto es una nota",
-                    from_account_id: 1,
+                    from_account_id: selectedAccount,
                 }),
             });
 
@@ -197,7 +199,18 @@ export default function AddMoney() {
                 console.error("Error al obtener categorías:", e);
             }
         };
+        const getAccounts = async () => {
+            try {
+                const url = apiUrl + "/api/accounts";
+                const response = await fetch(url);
+                const data = await response.json();
+                setAccounts(data.data);
+            } catch (e) {
+                console.error("Error al obtener categorías:", e);
+            }
+        };
 
+        getAccounts();
         getCategories();
     }, [apiUrl]);
 
@@ -230,6 +243,33 @@ export default function AddMoney() {
                                 placeholderTextColor={colors.textSecondary}
                                 onChangeText={setName}
                             />
+                        </View>
+
+                        <Text style={styles.label}>From account</Text>
+                        <View style={styles.picker}>
+                            <Picker
+                                selectedValue={selectedAccount}
+                                onValueChange={setSelectedAccount}
+                                style={{ color: colors.textPrimary }}
+                                prompt="Select an account"
+                            >
+                                <Picker.Item
+                                    label="Select an account"
+                                    value={null}
+                                />
+                                {accounts.map((account) => (
+                                    <Picker.Item
+                                        key={account.id}
+                                        label={
+                                            account.name +
+                                            " " +
+                                            account.current_balance +
+                                            "$"
+                                        }
+                                        value={account.id}
+                                    />
+                                ))}
+                            </Picker>
                         </View>
 
                         <Text style={styles.label}>Category</Text>
