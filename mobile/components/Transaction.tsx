@@ -23,24 +23,17 @@ export default function TransactionCard({ t }: { t: Transaction }) {
                         { backgroundColor: colors.surface },
                     ]}
                 >
-                    <View style={styles.titles}>
-                        <Ionicons
-                            name="ellipse"
-                            size={24}
-                            color={colors.textPrimary}
-                        />
-                        <View style={styles.title}>
-                            <Text
-                                style={{
-                                    color: colors.textPrimary,
-                                    fontSize: 16,
-                                }}
-                                numberOfLines={1}
-                                ellipsizeMode="tail"
-                            >
-                                {t.title}
-                            </Text>
-                        </View>
+                    <View style={styles.title}>
+                        <Text
+                            style={{
+                                color: colors.textPrimary,
+                                fontSize: 16,
+                            }}
+                            numberOfLines={1}
+                            ellipsizeMode="tail"
+                        >
+                            {t.category_icon + "   " + t.title}
+                        </Text>
                     </View>
                     <View style={styles.end}>
                         <View style={styles.desc}>
@@ -69,12 +62,6 @@ export default function TransactionCard({ t }: { t: Transaction }) {
 }
 
 const styles = StyleSheet.create({
-    titles: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 10,
-    },
-
     container: {
         borderRadius: 6,
         flexDirection: "row",

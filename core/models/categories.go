@@ -19,7 +19,7 @@ type Categories struct {
 	Type          string        `json:"type"`
 	Icon          string        `json:"icon"`
 	BudgetLimit   float64       `json:"budget_limit"`
-	SubCategories []SubCategory `json:"subcategories,omitempty"`
+	SubCategories []SubCategory `json:"subcategories"`
 }
 
 func (c *Categories) Create() (int, error) {
@@ -124,7 +124,8 @@ func (c *Categories) Scan(rows *sql.Rows) error {
 		return err
 	}
 
-	// If we have a valid subcategory, add it to the slice
+    // If we have a valid subcategory, add it to the slice
+    c.SubCategories = []SubCategory{}
 	if subCategory.ID.Valid {
 		c.SubCategories = append(c.SubCategories, SubCategory{
 			ID:         int(subCategory.ID.Int64),

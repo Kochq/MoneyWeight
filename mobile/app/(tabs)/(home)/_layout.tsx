@@ -1,5 +1,6 @@
 import { Stack } from "expo-router";
 import React from "react";
+import AccountSelector from "../../../components/AccountSelector";
 
 export default function HomeLayout() {
     return (
@@ -15,7 +16,13 @@ export default function HomeLayout() {
                 },
             }}
         >
-            <Stack.Screen name="index" />
+            <Stack.Screen
+                name="index"
+                options={{
+                    headerTitle: () => <AccountSelector />,
+                    headerTitleAlign: "left",
+                }}
+            />
             <Stack.Screen name="details/[id]" />
             <Stack.Screen name="transaction/[id]" />
             <Stack.Screen name="AddMoney" />

@@ -53,5 +53,13 @@ func main() {
 		api.DELETE("/subCategories/:id", routes.RemoveSubCategory)
 	}
 
+	{
+		api.GET("/accounts", routes.GetAccounts)
+		api.POST("/accounts", routes.AddAccount)
+		api.PUT("/accounts/:id", routes.UpdateAccount)
+		api.DELETE("/accounts/:id", routes.RemoveAccount)
+	}
+
+
 	r.Run(":8080") // Inicia el servidor en el puerto 8080
 }
