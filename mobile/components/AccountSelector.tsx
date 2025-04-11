@@ -26,7 +26,7 @@ const AccountSelector = () => {
                 const data = await response.json();
                 setAccounts(data.data);
             } catch (e) {
-                console.error("Error al obtener categorías:", e);
+                console.error("Error al obtener cuentas:", e);
             }
         };
 
@@ -135,7 +135,7 @@ const AccountSelector = () => {
                                             {
                                                 color:
                                                     selectedAccount ===
-                                                    account.name
+                                                        account.name
                                                         ? colors.primary
                                                         : colors.textPrimary,
                                             },

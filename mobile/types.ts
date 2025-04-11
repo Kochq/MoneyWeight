@@ -53,3 +53,9 @@ export interface Accounts {
     is_active: boolean;
     created_at: string;
 }
+
+export enum CategoryType {
+    income = "income",
+    expense = "expense",
+    investment = "investment",
+}
