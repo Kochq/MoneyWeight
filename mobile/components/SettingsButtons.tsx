@@ -1,12 +1,11 @@
-import BotonGrandote from "@/components/BotonGrandote";
-import { useTheme } from "@/theme/ThemeContext";
-import { Link } from "expo-router";
-import React from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useTheme } from "../theme/ThemeContext";
+import BotonGrandote from "./BotonGrandote";
 
-export default function Settings() {
+export default function SettingsButtons() {
     const { colors } = useTheme();
+
     return (
         <View style={styles.container}>
             <View style={styles.botones}>
@@ -18,7 +17,7 @@ export default function Settings() {
                 </BotonGrandote>
             </View>
             <View style={styles.botones}>
-                <BotonGrandote to="/AddCategory" color={colors.primary}>
+                <BotonGrandote to="/(tabs)/(settings)/AddCategory" color={colors.primary}>
                     <Ionicons name="layers-outline" size={120} color={colors.primary} />
                 </BotonGrandote>
                 <BotonGrandote to="/AddMoney" color={colors.primary}>
@@ -38,28 +37,10 @@ const styles = StyleSheet.create({
     },
 
     botones: {
-        gap: 15,
-        width: "100%",
         marginBottom: 20,
         flexDirection: "row",
-        justifyContent: "space-evenly",
+        gap: 20,
     },
 
-    link: {
-        color: "blue",
-        backgroundColor: "lightblue",
-        padding: 10,
-        borderRadius: 5,
-        marginBottom: 10,
-    },
-
-    title: {
-        fontSize: 20,
-        fontWeight: "bold",
-    },
-
-    text: {
-        fontSize: 16,
-        marginBottom: 10,
-    },
 });
+

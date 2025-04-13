@@ -3,7 +3,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../theme/ThemeContext";
 import Boton from "./Boton";
 
-export default function Buttons() {
+export default function HomeButtons() {
     const { colors } = useTheme();
 
     return (

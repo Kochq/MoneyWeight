@@ -1,5 +1,5 @@
 import { useTheme } from "@/theme/ThemeContext";
-import Screen from "./(home)/Screen";
+import Screen from "@/components/Screen";
 import {
     View,
     TextInput,

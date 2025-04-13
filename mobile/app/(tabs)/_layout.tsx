@@ -23,14 +23,10 @@ export default function TabLayout() {
                 }}
             />
             <Tabs.Screen
-                name="settings"
+                name="(settings)"
                 options={{
                     tabBarIcon: ({ color }) => (
-                        <Ionicons
-                            name="settings-sharp"
-                            size={24}
-                            color={color}
-                        />
+                        <Ionicons name="settings-sharp" size={24} color={color} />
                     ),
                     tabBarActiveBackgroundColor: colors.background,
                     tabBarInactiveBackgroundColor: colors.background,

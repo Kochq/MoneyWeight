@@ -8,7 +8,7 @@ import {
     Platform,
     ScrollView,
 } from "react-native";
-import Screen from "./Screen";
+import Screen from "@/components/Screen";
 import { useEffect, useState } from "react";
 import { Picker } from "@react-native-picker/picker";
 import { Category, SubCategory, Accounts } from "@/types";

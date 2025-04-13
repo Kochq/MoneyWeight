@@ -60,6 +60,5 @@ func main() {
 		api.DELETE("/accounts/:id", routes.RemoveAccount)
 	}
 
-
 	r.Run(":8080") // Inicia el servidor en el puerto 8080
 }

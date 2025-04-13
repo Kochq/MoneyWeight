@@ -1,13 +1,13 @@
 import { View, StyleSheet } from "react-native";
 import React from "react";
-import { useTheme } from "../../../theme/ThemeContext";
+import { useTheme } from "@/theme/ThemeContext";
 
 interface ScreenProps {
     children: React.ReactNode;
 }
 
 export default function Screen({ children }: ScreenProps) {
-    const { colors, toggleTheme } = useTheme();
+    const { colors } = useTheme();
 
     return (
         <View

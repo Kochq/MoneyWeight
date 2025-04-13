@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import { StyleSheet, FlatList, RefreshControl } from "react-native";
 import TransactionCard from "@/components/Transaction";
 import TotalCard from "@/components/TotalCard";
-import Buttons from "@/components/Buttons";
+import HomeButtons from "@/components/HomeButtons";
 import { Transaction } from "@/types";
-import Screen from "./Screen";
+import Screen from "@/components/Screen";
 
 export default function HomeScreen() {
     const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -36,7 +36,7 @@ export default function HomeScreen() {
     return (
         <Screen>
             <TotalCard />
-            <Buttons />
+            <HomeButtons />
             <FlatList
                 style={styles.list}
                 contentContainerStyle={styles.listContent}
